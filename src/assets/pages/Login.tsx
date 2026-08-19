@@ -1,5 +1,6 @@
 import { useState } from "react";
 import bcrypt from "bcryptjs";
+import { Link } from "react-router-dom";
 
 function Login() {
   const [email, setEmail] = useState("");
@@ -87,7 +88,7 @@ function Login() {
         </form>
 
         <p className="auth-footer">
-          Don't have an account? <a href="/register">Create an account</a>
+          Don't have an account? <Link to="/register">Create an account</Link>
         </p>
       </section>
     </main>
