@@ -1,5 +1,6 @@
 import { useState } from "react";
 import bcrypt from "bcryptjs";
+import { Link } from "react-router-dom";
 
 function Register() {
   const [name, setName] = useState("");
@@ -114,12 +115,12 @@ function Register() {
             />
           </div>
 
-          <button type="submit" className="register-button">
+          <button type="submit" className="button button-primary">
             Create Account
           </button>
         </form>
-        <p>
-            Already have an account? <a href="/Login">Sign In</a>
+        <p className="auth-footer">
+          Already have an account? <Link to="/login">Sign in</Link>
         </p>
       </section>
     </main>

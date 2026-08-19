@@ -1,17 +1,20 @@
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 
-
-import './App.css'
-import Register from './assets/pages/Register'
-import Login from './assets/pages/Login'
+import Login from "./assets/pages/Login";
+import Register from "./assets/pages/Register";
 
 function App() {
   return (
-    <>
-      <Login/>
-    <Register/>
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={<Navigate to="/login" />} />
 
-    </>
-  )
+        <Route path="/login" element={<Login />} />
+
+        <Route path="/register" element={<Register />} />
+      </Routes>
+    </BrowserRouter>
+  );
 }
 
-export default App
+export default App;
