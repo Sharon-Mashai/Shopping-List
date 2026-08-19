@@ -4,6 +4,7 @@ import Login from "./assets/pages/Login";
 import Register from "./assets/pages/Register";
 import Home from "./assets/pages/Home";
 import ShoppingList from "./assets/ShoppingList";
+import Profile from "./assets/pages/Profile";
 
 function App() {
   return (
@@ -18,7 +19,8 @@ function App() {
         <Route path="/home" element={<Home />} />
 
         <Route path="/shopping-list/:id" element={<ShoppingList />} />
-        
+
+        <Route path="/profile" element={<Profile />} />
       </Routes>
     </BrowserRouter>
   );
