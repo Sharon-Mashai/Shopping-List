@@ -21,6 +21,7 @@ function App() {
         <Route path="/shopping-list/:id" element={<ShoppingList />} />
 
         <Route path="/profile" element={<Profile />} />
+        
       </Routes>
     </BrowserRouter>
   );
