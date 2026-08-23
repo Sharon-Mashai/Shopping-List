@@ -1,10 +1,15 @@
 import { useState } from "react";
 import bcrypt from "bcryptjs";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { useDispatch } from "react-redux";
+import type { AppDispatch } from "../store/store";
+import { login } from "../store/slices/authSlice";
 
 function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const dispatch = useDispatch<AppDispatch>();
+  const navigate = useNavigate();
 
   const handleLogin = async (event: React.FormEvent) => {
     event.preventDefault();
@@ -39,8 +44,21 @@ function Login() {
         return;
       }
 
+      dispatch(
+        login({
+          id: user.id,
+          name: user.name,
+          surname: user.surname,
+          email: user.email,
+          cellNumber: user.cellNumber,
+        }),
+      );
+
       alert(`Welcome back, ${user.name}!`);
-    } catch (error) {
+
+      navigate("/home");
+    }
+     catch (error) {
       console.error(error);
       alert("Something went wrong. Please try again.");
     }

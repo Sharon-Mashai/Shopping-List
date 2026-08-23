@@ -1,5 +1,15 @@
 {
-  "users": [],
+  "users": [
+    {
+      "name": "Sharon",
+      "surname": "Mashai",
+      "email": "mashaisharow@gmail.com",
+      "cellNumber": "0769336601",
+      "password": "$2b$10$ed.2aONzbAnps.1qfJLzMejd67lTh5BP.g2V3RblxQ298zYq113re",
+      "id": "00Goc3_xfi4"
+    }
+  ],
   "shoppingLists": [],
-  "items": []
+  "items": [],
+  "$schema": "./node_modules/json-server/schema.json"
 }
