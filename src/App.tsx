@@ -1,10 +1,10 @@
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 
-import Login from "./assets/pages/Login";
-import Register from "./assets/pages/Register";
-import Home from "./assets/pages/Home";
-import ShoppingList from "./assets/ShoppingList";
-import Profile from "./assets/pages/Profile";
+import Login from "./pages/Login";
+import Register from "./pages/Register";
+import Home from "./pages/Home";
+import ShoppingList from "./pages/ShoppingList";
+import Profile from "./pages/Profile";
 
 function App() {
   return (
