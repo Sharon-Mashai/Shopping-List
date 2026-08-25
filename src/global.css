@@ -367,3 +367,73 @@ ul {
   gap: 12px;
   margin-top: 28px;
 }
+
+/*Shopping list cards*/
+
+
+.shopping-lists {
+  max-width: 1200px;
+  margin: 0 auto;
+
+  display: grid;
+  grid-template-columns: repeat(
+    auto-fill,
+    minmax(280px, 1fr)
+  );
+
+  gap: 20px;
+}
+
+.shopping-list-card {
+  padding: 24px;
+
+  background-color: var(--color-white);
+
+  border: 1px solid var(--color-gray-light);
+  border-radius: var(--border-radius);
+
+  transition: box-shadow 0.2s ease,
+              transform 0.2s ease;
+}
+
+.shopping-list-card:hover {
+  transform: translateY(-2px);
+
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
+}
+
+.shopping-list-card-content {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.shopping-list-category {
+  display: inline-block;
+
+  margin-bottom: 10px;
+  padding: 5px 10px;
+
+  border-radius: 20px;
+
+  background-color: var(--color-gray-background);
+  color: var(--color-charcoal);
+
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.shopping-list-card h2 {
+  margin-bottom: 8px;
+
+  color: var(--color-charcoal);
+  font-size: 20px;
+}
+
+.shopping-list-card p {
+  margin-bottom: 20px;
+
+  color: var(--color-gray);
+  line-height: 1.5;
+}
