@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import type { AppDispatch, RootState } from "../store/store";
 import {setShoppingLists,setLoading,setError,} from "../store/slices/ShoppingListSlice";
@@ -9,13 +9,12 @@ import { Link } from "react-router-dom";
 function Home() {
   const dispatch = useDispatch<AppDispatch>();
   const navigate = useNavigate();
-
+  const [sortOption, setSortOption] = useState("newest");
   const { shoppingLists, loading, error } = useSelector(
     (state: RootState) => state.shoppingLists,
   );
 
-  const user = useSelector(
-  (state: RootState) => state.auth.user,
+  const user = useSelector((state: RootState) => state.auth.user,
 );
 
 useEffect(() => {
@@ -42,6 +41,29 @@ useEffect(() => {
 
   loadShoppingLists();
 }, [dispatch, user]);
+const sortedShoppingLists = useMemo(() => {
+  const lists = [...shoppingLists];
+
+  if (sortOption === "name") {
+    return lists.sort((a, b) =>
+      a.name.localeCompare(b.name),
+    );
+  }
+
+  if (sortOption === "oldest") {
+    return lists.sort(
+      (a, b) =>
+        new Date(a.createdAt).getTime() -
+        new Date(b.createdAt).getTime(),
+    );
+  }
+
+  return lists.sort(
+    (a, b) =>
+      new Date(b.createdAt).getTime() -
+      new Date(a.createdAt).getTime(),
+  );
+}, [shoppingLists, sortOption]);
 
   return (
     <main className="home-page">
@@ -86,15 +108,41 @@ useEffect(() => {
 
         </section>
       )}
+      
 
       {!loading && !error && shoppingLists.length > 0 && (
 
         <section className="shopping-lists">
-  {shoppingLists.map((list) => (
-    <article
+          {sortedShoppingLists.map((list) => (
+         <article
       className="shopping-list-card"
       key={list.id}
     >
+      <div className="list-toolbar">
+  <label htmlFor="sort">
+    Sort by
+  </label>
+
+  <select
+    id="sort"
+    value={sortOption}
+    onChange={(event) =>
+      setSortOption(event.target.value)
+    }
+  >
+    <option value="newest">
+      Newest
+    </option>
+
+    <option value="oldest">
+      Oldest
+    </option>
+
+    <option value="name">
+      Name
+    </option>
+  </select>
+</div>
       <div className="shopping-list-card-content">
         <span className="shopping-list-category">
           {list.category}
