@@ -47,12 +47,12 @@
     },
     {
       "listId": "M23wWTAl9iw",
-      "name": "Bread",
+      "name": "Lettuce",
       "quantity": 1,
-      "category": "Wheat",
+      "category": "Vegetables",
       "completed": false,
-      "createdAt": "2026-08-25T08:13:39.618Z",
-      "id": "I0QhCzhy2-A"
+      "createdAt": "2026-08-25T12:06:23.617Z",
+      "id": "7lRHPd4t5Vk"
     }
   ],
   "$schema": "./node_modules/json-server/schema.json"
