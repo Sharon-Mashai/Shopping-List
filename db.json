@@ -50,7 +50,7 @@
       "name": "Lettuce",
       "quantity": 1,
       "category": "Vegetables",
-      "completed": false,
+      "completed": true,
       "createdAt": "2026-08-25T12:06:23.617Z",
       "id": "7lRHPd4t5Vk"
     }
