@@ -1,39 +1,22 @@
-import {useEffect,useMemo,useState,} from "react";
-import {Link,useNavigate,} from "react-router-dom";
-import { useDispatch, useSelector,} from "react-redux";
-import type {AppDispatch,RootState,} from "../store/store";
-import { setShoppingLists,setLoading,setError,deleteShoppingList as deleteShoppingListState,} from "../store/slices/ShoppingListSlice";
-import { getShoppingLists, deleteShoppingList,getShoppingItems,deleteShoppingItem,} from "../services/api";
+import { useEffect, useMemo, useState } from "react";
+import { Link } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+import type { AppDispatch, RootState } from "../store/store";
+import {setShoppingLists, setLoading,setError,deleteShoppingList as deleteShoppingListState,} from "../store/slices/ShoppingListSlice";
+import { getShoppingLists, deleteShoppingList } from "../services/api";
 
 function Home() {
-  const dispatch =
-    useDispatch<AppDispatch>();
+  const dispatch = useDispatch<AppDispatch>();
 
-  const navigate = useNavigate();
+  const user = useSelector((state: RootState) => state.auth.user);
 
-  const user = useSelector(
-    (state: RootState) =>
-      state.auth.user,
+  const { shoppingLists, loading, error } = useSelector(
+    (state: RootState) => state.shoppingLists,
   );
 
-  const {
-    shoppingLists,
-    loading,
-    error,
-  } = useSelector(
-    (state: RootState) =>
-      state.shoppingLists,
-  );
+  const [sortOption, setSortOption] = useState("newest");
 
-  const [
-    sortOption,
-    setSortOption,
-  ] = useState("newest");
-
-  const [
-    deletingListId,
-    setDeletingListId,
-  ] = useState<string | null>(null);
+  const [deletingListId, setDeletingListId] = useState<string | null>(null);
 
   useEffect(() => {
     async function loadShoppingLists() {
@@ -45,83 +28,43 @@ function Home() {
           return;
         }
 
-        const data =
-          await getShoppingLists(
-            user.id,
-          );
+        const data = await getShoppingLists(user.id);
 
-        dispatch(
-          setShoppingLists(data),
-        );
+        dispatch(setShoppingLists(data));
       } catch {
-        dispatch(
-          setError(
-            "Unable to load shopping lists.",
-          ),
-        );
+        dispatch(setError("Unable to load shopping lists."));
       } finally {
-        dispatch(
-          setLoading(false),
-        );
+        dispatch(setLoading(false));
       }
     }
 
     loadShoppingLists();
   }, [dispatch, user]);
 
-  const sortedShoppingLists =
-    useMemo(() => {
-      const lists = [
-        ...shoppingLists,
-      ];
+  const sortedShoppingLists = useMemo(() => {
+    const lists = [...shoppingLists];
 
-      if (
-        sortOption === "name"
-      ) {
-        return lists.sort(
-          (a, b) =>
-            a.name.localeCompare(
-              b.name,
-            ),
-        );
-      }
+    if (sortOption === "name") {
+      return lists.sort((a, b) => a.name.localeCompare(b.name));
+    }
 
-      if (
-        sortOption === "oldest"
-      ) {
-        return lists.sort(
-          (a, b) =>
-            new Date(
-              a.createdAt,
-            ).getTime() -
-            new Date(
-              b.createdAt,
-            ).getTime(),
-        );
-      }
-
+    if (sortOption === "oldest") {
       return lists.sort(
         (a, b) =>
-          new Date(
-            b.createdAt,
-          ).getTime() -
-          new Date(
-            a.createdAt,
-          ).getTime(),
+          new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime(),
       );
-    }, [
-      shoppingLists,
-      sortOption,
-    ]);
+    }
 
-  const handleDeleteList = async (
-    id: string,
-    name: string,
-  ) => {
-    const confirmed =
-      window.confirm(
-        `Are you sure you want to delete "${name}"? This will also delete all items in this list.`,
-      );
+    return lists.sort(
+      (a, b) =>
+        new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
+    );
+  }, [shoppingLists, sortOption]);
+
+  const handleDeleteList = async (id: string, name: string) => {
+    const confirmed = window.confirm(
+      `Are you sure you want to delete "${name}"?`,
+    );
 
     if (!confirmed) {
       return;
@@ -130,40 +73,11 @@ function Home() {
     try {
       setDeletingListId(id);
 
-      /*
-       * First find all items
-       * belonging to this list.
-       */
-      const items =
-        await getShoppingItems(id);
-
-      /*
-       * Delete all items belonging
-       * to the shopping list.
-       */
-      for (const item of items) {
-        await deleteShoppingItem(
-          item.id,
-        );
-      }
-
-      /*
-       * Delete the shopping list.
-       */
       await deleteShoppingList(id);
 
-      /*
-       * Update Redux Toolkit state.
-       */
-      dispatch(
-        deleteShoppingListState(id),
-      );
+      dispatch(deleteShoppingListState(id));
     } catch {
-      dispatch(
-        setError(
-          "Unable to delete shopping list.",
-        ),
-      );
+      dispatch(setError("Unable to delete shopping list."));
     } finally {
       setDeletingListId(null);
     }
@@ -171,180 +85,96 @@ function Home() {
 
   return (
     <main className="home-page">
-
       <section className="page-header">
-
         <div>
-          <h1>
-            My Shopping Lists
-          </h1>
+          <h1>My Shopping Lists</h1>
 
-          <p>
-            Create and manage your
-            shopping lists.
-          </p>
+          <p>Create and manage your shopping lists.</p>
         </div>
 
-        <Link
-          to="/create-shopping-list"
-          className="button button-primary"
-        >
+        <Link to="/create-shopping-list" className="button button-primary">
           + Create List
         </Link>
-
       </section>
 
-      {loading && (
-        <p className="loading-message">
-          Loading shopping lists...
-        </p>
+      {loading && <p className="loading-message">Loading shopping lists...</p>}
+
+      {error && <p className="error-message">{error}</p>}
+
+      {!loading && !error && shoppingLists.length === 0 && (
+        <section className="empty-state">
+          <div className="empty-state-icon">🛒</div>
+
+          <h2>Your shopping list is empty</h2>
+
+          <p>Start by creating your first shopping list.</p>
+
+          <Link to="/create-shopping-list" className="button button-primary">
+            Create Shopping List
+          </Link>
+        </section>
       )}
 
-      {error && (
-        <p className="error-message">
-          {error}
-        </p>
-      )}
+      {!loading && !error && shoppingLists.length > 0 && (
+        <>
+          <div className="list-toolbar">
+            <label htmlFor="sort">Sort by</label>
 
-      {!loading &&
-        !error &&
-        shoppingLists.length ===
-          0 && (
-          <section className="empty-state">
-
-            <div className="empty-state-icon">
-              🛒
-            </div>
-
-            <h2>
-              Your shopping list is empty
-            </h2>
-
-            <p>
-              Start by creating your
-              first shopping list.
-            </p>
-
-            <Link
-              to="/create-shopping-list"
-              className="button button-primary"
+            <select
+              id="sort"
+              value={sortOption}
+              onChange={(event) => setSortOption(event.target.value)}
             >
-              Create Shopping List
-            </Link>
+              <option value="newest">Newest</option>
 
+              <option value="oldest">Oldest</option>
+
+              <option value="name">Name</option>
+            </select>
+          </div>
+
+          <section className="shopping-lists">
+            {sortedShoppingLists.map((list) => (
+              <article className="shopping-list-card" key={list.id}>
+                <div className="shopping-list-card-content">
+                  <span className="shopping-list-category">
+                    {list.category}
+                  </span>
+
+                  <h2>{list.name}</h2>
+
+                  {list.notes && <p>{list.notes}</p>}
+
+                  <div className="shopping-list-card-actions">
+                    <Link
+                      to={`/shopping-list/${list.id}`}
+                      className="button button-primary"
+                    >
+                      Open List
+                    </Link>
+
+                    <Link
+                      to={`/edit-shopping-list/${list.id}`}
+                      className="button button-secondary"
+                    >
+                      Edit
+                    </Link>
+
+                    <button
+                      type="button"
+                      className="button button-danger"
+                      onClick={() => handleDeleteList(list.id, list.name)}
+                      disabled={deletingListId === list.id}
+                    >
+                      {deletingListId === list.id ? "Deleting..." : "Delete"}
+                    </button>
+                  </div>
+                </div>
+              </article>
+            ))}
           </section>
-        )}
-
-      {!loading &&
-        !error &&
-        shoppingLists.length >
-          0 && (
-          <>
-
-            <div className="list-toolbar">
-
-              <label htmlFor="sort">
-                Sort by
-              </label>
-
-              <select
-                id="sort"
-                value={sortOption}
-                onChange={(event) =>
-                  setSortOption(
-                    event.target.value,
-                  )
-                }
-              >
-                <option value="newest">
-                  Newest
-                </option>
-
-                <option value="oldest">
-                  Oldest
-                </option>
-
-                <option value="name">
-                  Name
-                </option>
-              </select>
-
-            </div>
-
-            <section className="shopping-lists">
-
-              {sortedShoppingLists.map(
-                (list) => (
-                  <article
-                    className="shopping-list-card"
-                    key={list.id}
-                  >
-
-                    <div className="shopping-list-card-content">
-
-                      <span className="shopping-list-category">
-                        {list.category}
-                      </span>
-
-                      <h2>
-                        {list.name}
-                      </h2>
-
-                      {list.notes && (
-                        <p>
-                          {list.notes}
-                        </p>
-                      )}
-
-                      <div className="shopping-list-card-actions">
-
-                        <Link
-                          to={`/shopping-list/${list.id}`}
-                          className="button button-primary"
-                        >
-                          Open List
-                        </Link>
-
-                        <Link
-                          to={`/edit-shopping-list/${list.id}`}
-                          className="button button-secondary"
-                        >
-                          Edit
-                        </Link>
-
-                        <button
-                          type="button"
-                          className="button button-danger"
-                          onClick={() =>
-                            handleDeleteList(
-                              list.id,
-                              list.name,
-                            )
-                          }
-                          disabled={
-                            deletingListId ===
-                            list.id
-                          }
-                        >
-                          {deletingListId ===
-                          list.id
-                            ? "Deleting..."
-                            : "Delete"}
-                        </button>
-
-                      </div>
-
-                    </div>
-
-                  </article>
-                ),
-              )}
-
-            </section>
-
-          </>
-        )}
-
+        </>
+      )}
     </main>
   );
 }

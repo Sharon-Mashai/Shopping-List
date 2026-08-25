@@ -1,9 +1,10 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useDispatch } from "react-redux";
+import type { FormEvent } from "react";
 import type { AppDispatch } from "../store/store";
-import {updateShoppingList,} from "../services/api";
-import {updateShoppingList as updateShoppingListState,} from "../store/slices/ShoppingListSlice";
+import { getShoppingList, updateShoppingList } from "../services/api";
+import { updateShoppingList as updateShoppingListState } from "../store/slices/ShoppingListSlice";
 
 function EditShoppingList() {
   const { id } = useParams<{ id: string }>();
@@ -13,42 +14,35 @@ function EditShoppingList() {
   const dispatch = useDispatch<AppDispatch>();
 
   const [name, setName] = useState("");
+
   const [category, setCategory] = useState("");
+
   const [notes, setNotes] = useState("");
 
   const [loading, setLoading] = useState(true);
+
   const [saving, setSaving] = useState(false);
 
-  const [error, setError] =
-    useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     async function loadShoppingList() {
       try {
         if (!id) {
           setError("Shopping list could not be found.");
+
           return;
         }
 
-        const response = await fetch(
-          `http://localhost:3000/shoppingLists/${id}`,
-        );
+        const list = await getShoppingList(id);
 
-        if (!response.ok) {
-          throw new Error(
-            "Shopping list not found.",
-          );
-        }
+        setName(list.name || "");
 
-        const list = await response.json();
+        setCategory(list.category || "");
 
-        setName(list.name);
-        setCategory(list.category);
         setNotes(list.notes || "");
       } catch {
-        setError(
-          "Unable to load the shopping list.",
-        );
+        setError("Unable to load the shopping list.");
       } finally {
         setLoading(false);
       }
@@ -57,31 +51,26 @@ function EditShoppingList() {
     loadShoppingList();
   }, [id]);
 
-  const handleSubmit = async (
-    event: React.FormEvent<HTMLFormElement>,
-  ) => {
+  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
     setError(null);
 
     if (!id) {
-      setError(
-        "Shopping list could not be found.",
-      );
+      setError("Shopping list could not be found.");
+
       return;
     }
 
     if (!name.trim()) {
-      setError(
-        "Please enter a shopping list name.",
-      );
+      setError("Please enter a shopping list name.");
+
       return;
     }
 
     if (!category.trim()) {
-      setError(
-        "Please enter a category.",
-      );
+      setError("Please enter a category.");
+
       return;
     }
 
@@ -89,29 +78,18 @@ function EditShoppingList() {
       setSaving(true);
 
       const updatedList = {
-        id,
         name: name.trim(),
         category: category.trim(),
         notes: notes.trim(),
       };
 
-      const savedList =
-        await updateShoppingList(
-          id,
-          updatedList,
-        );
+      const savedList = await updateShoppingList(id, updatedList);
 
-      dispatch(
-        updateShoppingListState(
-          savedList,
-        ),
-      );
+      dispatch(updateShoppingListState(savedList));
 
       navigate("/home");
     } catch {
-      setError(
-        "Unable to update shopping list.",
-      );
+      setError("Unable to update shopping list.");
     } finally {
       setSaving(false);
     }
@@ -127,137 +105,67 @@ function EditShoppingList() {
     );
   }
 
-  if (error && !name && !category) {
-    return (
-      <main className="form-page">
-        <section className="form-card">
-
-          <div className="form-card-header">
-            <button
-              type="button"
-              className="back-button"
-              onClick={() =>
-                navigate("/home")
-              }
-            >
-              ← Back
-            </button>
-
-            <h1>
-              Shopping List
-            </h1>
-          </div>
-
-          <div className="form-error">
-            {error}
-          </div>
-
-        </section>
-      </main>
-    );
-  }
-
   return (
     <main className="form-page">
-
       <section className="form-card">
-
         <div className="form-card-header">
-
           <button
             type="button"
             className="back-button"
-            onClick={() =>
-              navigate("/home")
-            }
+            onClick={() => navigate("/home")}
           >
             ← Back
           </button>
 
-          <h1>
-            Edit Shopping List
-          </h1>
+          <h1>Edit Shopping List</h1>
 
-          <p>
-            Update the information for
-            your shopping list.
-          </p>
-
+          <p>Update the information for your shopping list.</p>
         </div>
 
-        {error && (
-          <div className="form-error">
-            {error}
-          </div>
-        )}
+        {error && <div className="form-error">{error}</div>}
 
-        <form
-          className="page-form"
-          onSubmit={handleSubmit}
-        >
-
+        <form className="page-form" onSubmit={handleSubmit}>
           <div className="form-group">
-            <label htmlFor="name">
-              List Name
-            </label>
+            <label htmlFor="name">List Name</label>
 
             <input
               id="name"
               type="text"
               value={name}
-              onChange={(event) =>
-                setName(
-                  event.target.value,
-                )
-              }
+              onChange={(event) => setName(event.target.value)}
               placeholder="e.g. Weekly Groceries"
             />
           </div>
 
           <div className="form-group">
-            <label htmlFor="category">
-              Category
-            </label>
+            <label htmlFor="category">Category</label>
 
             <input
               id="category"
               type="text"
               value={category}
-              onChange={(event) =>
-                setCategory(
-                  event.target.value,
-                )
-              }
+              onChange={(event) => setCategory(event.target.value)}
               placeholder="e.g. Groceries"
             />
           </div>
 
           <div className="form-group">
-            <label htmlFor="notes">
-              Notes
-            </label>
+            <label htmlFor="notes">Notes</label>
 
             <textarea
               id="notes"
               value={notes}
-              onChange={(event) =>
-                setNotes(
-                  event.target.value,
-                )
-              }
+              onChange={(event) => setNotes(event.target.value)}
               placeholder="Add any notes for this list..."
               rows={4}
             />
           </div>
 
           <div className="form-actions">
-
             <button
               type="button"
               className="button button-secondary"
-              onClick={() =>
-                navigate("/home")
-              }
+              onClick={() => navigate("/home")}
               disabled={saving}
             >
               Cancel
@@ -268,17 +176,11 @@ function EditShoppingList() {
               className="button button-primary"
               disabled={saving}
             >
-              {saving
-                ? "Saving..."
-                : "Save Changes"}
+              {saving ? "Saving..." : "Save Changes"}
             </button>
-
           </div>
-
         </form>
-
       </section>
-
     </main>
   );
 }

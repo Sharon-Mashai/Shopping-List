@@ -1,4 +1,5 @@
-const API_URL ="http://localhost:3000";
+const API_URL =
+  "http://localhost:3000";
 
 
 export async function getShoppingLists(
@@ -100,12 +101,11 @@ export async function deleteShoppingList(
 }
 
 
-
 export async function getShoppingItems(
-  listId: string,
+  shoppingListId: string,
 ) {
   const response = await fetch(
-    `${API_URL}/shoppingItems?listId=${listId}`,
+    `${API_URL}/shoppingItems?shoppingListId=${shoppingListId}`,
   );
 
   if (!response.ok) {
@@ -116,6 +116,24 @@ export async function getShoppingItems(
 
   return response.json();
 }
+
+
+export async function getShoppingItem(
+  id: string,
+) {
+  const response = await fetch(
+    `${API_URL}/shoppingItems/${id}`,
+  );
+
+  if (!response.ok) {
+    throw new Error(
+      "Unable to load shopping item.",
+    );
+  }
+
+  return response.json();
+}
+
 
 export async function createShoppingItem(
   item: object,
@@ -140,6 +158,7 @@ export async function createShoppingItem(
   return response.json();
 }
 
+
 export async function updateShoppingItem(
   id: string,
   item: object,
@@ -163,6 +182,7 @@ export async function updateShoppingItem(
 
   return response.json();
 }
+
 
 export async function deleteShoppingItem(
   id: string,

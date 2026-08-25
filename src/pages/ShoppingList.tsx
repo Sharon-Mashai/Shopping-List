@@ -41,9 +41,6 @@ function ShoppingList() {
   const [sortOption, setSortOption] =
     useState("newest");
 
-  /*
-   * Load shopping list and items
-   */
   useEffect(() => {
     async function loadData() {
       try {
@@ -97,9 +94,7 @@ function ShoppingList() {
     loadData();
   }, [id, user, dispatch]);
 
-  /*
-   * Add or update shopping item
-   */
+ 
   const handleSubmitItem = async (
     event: React.FormEvent<HTMLFormElement>,
   ) => {
@@ -128,9 +123,7 @@ function ShoppingList() {
     try {
       dispatch(setItemError(null));
 
-      /*
-       * EDIT ITEM
-       */
+     
       if (editingItemId) {
         const existingItem = items.find(
           (item) =>
@@ -165,9 +158,7 @@ function ShoppingList() {
         return;
       }
 
-      /*
-       * ADD ITEM
-       */
+   
       const newItem = {
         listId: id,
         name: itemName.trim(),
@@ -196,9 +187,7 @@ function ShoppingList() {
     }
   };
 
-  /*
-   * Start editing an item
-   */
+  
   const handleEditItem = (
     item: ShoppingItem,
   ) => {
@@ -213,9 +202,6 @@ function ShoppingList() {
     });
   };
 
-  /*
-   * Cancel editing
-   */
   const handleCancelEdit = () => {
     setEditingItemId(null);
     setItemName("");
@@ -223,9 +209,7 @@ function ShoppingList() {
     setCategory("");
   };
 
-  /*
-   * Delete an item
-   */
+
   const handleDeleteItem = async (
     item: ShoppingItem,
   ) => {
@@ -256,9 +240,7 @@ function ShoppingList() {
     }
   };
 
-  /*
-   * Mark item as complete/incomplete
-   */
+
   const handleToggleComplete = async (
     item: ShoppingItem,
   ) => {
@@ -286,9 +268,6 @@ function ShoppingList() {
     }
   };
 
-  /*
-   * Search and sort items
-   */
   const filteredAndSortedItems =
     useMemo(() => {
       let filteredItems = [...items];
@@ -358,9 +337,7 @@ function ShoppingList() {
       return filteredItems;
     }, [items, searchTerm, sortOption]);
 
-  /*
-   * Loading state
-   */
+ 
   if (listLoading) {
     return (
       <main className="shopping-list-page">
@@ -369,9 +346,7 @@ function ShoppingList() {
     );
   }
 
-  /*
-   * Error state
-   */
+
   if (listError) {
     return (
       <main className="shopping-list-page">
@@ -391,9 +366,7 @@ function ShoppingList() {
     );
   }
 
-  /*
-   * Shopping list not found
-   */
+
   if (!shoppingList) {
     return (
       <main className="shopping-list-page">
@@ -421,10 +394,7 @@ function ShoppingList() {
   return (
     <main className="shopping-list-page">
 
-      {/* =========================
-          SHOPPING LIST HEADER
-          ========================= */}
-
+     
       <section className="shopping-list-header">
 
         <Link
@@ -454,9 +424,6 @@ function ShoppingList() {
 
       </section>
 
-      {/* =========================
-          ADD / EDIT ITEM
-          ========================= */}
 
       <section className="add-item-section">
 

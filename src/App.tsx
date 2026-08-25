@@ -1,4 +1,4 @@
-import {BrowserRouter,Routes,Route,Navigate,} from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Home from "./pages/Home";
@@ -13,33 +13,33 @@ function App() {
   return (
     <BrowserRouter>
       <Routes>
-        <Route
-          path="/"
-          element={<Navigate to="/login" />}
-        />
 
         <Route element={<PublicRoute />}>
-          <Route path="/login" element={<Login />}/>
-          
-          <Route path="/register"element={<Register />} />
+          <Route path="/login" element={<Login />} />
+
+          <Route path="/register" element={<Register />} />
         </Route>
 
         <Route element={<ProtectedRoute />}>
-
           <Route path="/home" element={<Home />} />
-         
-          <Route path="/CreateShoppingList" element={<CreateShoppingList />}/>
 
-          <Route path = "/EditShoppingList" element={<EditShoppingList/>}/>
+          <Route
+            path="/create-shopping-list" element={<CreateShoppingList />}
+          />
 
-          <Route path="/ShoppingList/:id" element={<ShoppingList />} />
+          <Route
+            path="/edit-shopping-list/:id" element={<EditShoppingList />}
+          />
+
+          <Route path="/shopping-list/:id" element={<ShoppingList />} />
 
           <Route path="/profile" element={<Profile />} />
-
         </Route>
-         <Route path="*" element={ <Navigate to="/home" replace />} />
-         
 
+        <Route path="/" element={<Navigate to="/login" replace />} />
+
+
+        <Route path="*" element={<Navigate to="/home" replace />} />
       </Routes>
     </BrowserRouter>
   );
