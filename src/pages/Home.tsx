@@ -4,6 +4,7 @@ import type { AppDispatch, RootState } from "../store/store";
 import {setShoppingLists,setLoading,setError,} from "../store/slices/ShoppingListSlice";
 import { getShoppingLists } from "../services/api";
 import { useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 
 function Home() {
   const dispatch = useDispatch<AppDispatch>();
@@ -17,7 +18,7 @@ function Home() {
   (state: RootState) => state.auth.user,
 );
 
-  useEffect(() => {
+useEffect(() => {
   async function loadShoppingLists() {
     try {
       dispatch(setLoading(true));
@@ -25,9 +26,9 @@ function Home() {
 
       if (!user) {
         return;
-        }
-        const data = await getShoppingLists(user.id);
-      
+      }
+
+      const data = await getShoppingLists(user.id);
 
       dispatch(setShoppingLists(data));
     } catch {
@@ -40,7 +41,7 @@ function Home() {
   }
 
   loadShoppingLists();
-}, [dispatch]);
+}, [dispatch, user]);
 
   return (
     <main className="home-page">
@@ -86,17 +87,35 @@ function Home() {
         </section>
       )}
 
-      {!loading &&
-        !error &&
-        shoppingLists.length > 0 && (
-          <section className="shopping-lists">
-            {shoppingLists.map((list) => (
-              <div key={list.id}>
-                <h2>{list.name}</h2>
-                <p>{list.category}</p>
-              </div>
-            ))}
-          </section>
+      {!loading && !error && shoppingLists.length > 0 && (
+
+        <section className="shopping-lists">
+  {shoppingLists.map((list) => (
+    <article
+      className="shopping-list-card"
+      key={list.id}
+    >
+      <div className="shopping-list-card-content">
+        <span className="shopping-list-category">
+          {list.category}
+        </span>
+
+        <h2>{list.name}</h2>
+
+        {list.notes && (
+          <p>{list.notes}</p>
+        )}
+
+        <Link
+          to={`/shopping-list/${list.id}`}
+          className="button button-primary"
+        >
+          Open List
+        </Link>
+      </div>
+    </article>
+  ))}
+</section>
         )}
     </main>
   );
