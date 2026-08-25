@@ -151,7 +151,7 @@ function Home() {
           <section className="empty-state">
 
             <div className="empty-state-icon">
-              🛒
+              
             </div>
 
             <h2>
@@ -235,7 +235,7 @@ function Home() {
                       )}
 
                       <Link
-                        to={`/shopping-list/${list.id}`}
+                        to={`/ShoppingList/${list.id}`}
                         className="button button-primary"
                       >
                         Open List
