@@ -1,10 +1,10 @@
-import {useEffect,useMemo,useState,} from "react";
+import { useEffect,useMemo,useState,} from "react";
 import { Link, useParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import type { AppDispatch, RootState } from "../store/store";
-import type { ShoppingItem, ShoppingList as ShoppingListType,} from "../types";
-import { setItems,addItem,updateItem,setItemLoading,setItemError,} from "../store/slices/ShoppingItemsSlice";
-import {getShoppingList,getShoppingItems,createShoppingItem,updateShoppingItem,} from "../services/api";
+import type { ShoppingItem,ShoppingList as ShoppingListType,} from "../types";
+import {setItems,addItem,updateItem,deleteItem,setItemLoading,setItemError,} from "../store/slices/ShoppingItemsSlice";
+import {getShoppingList,getShoppingItems,createShoppingItem,updateShoppingItem,deleteShoppingItem,} from "../services/api";
 
 function ShoppingList() {
   const { id } = useParams<{ id: string }>();
@@ -32,13 +32,18 @@ function ShoppingList() {
   const [quantity, setQuantity] = useState(1);
   const [category, setCategory] = useState("");
 
+  const [editingItemId, setEditingItemId] =
+    useState<string | null>(null);
+
   const [searchTerm, setSearchTerm] =
     useState("");
 
   const [sortOption, setSortOption] =
     useState("newest");
 
-  /*Load the shopping list and its items*/
+  /*
+   * Load shopping list and items
+   */
   useEffect(() => {
     async function loadData() {
       try {
@@ -92,8 +97,10 @@ function ShoppingList() {
     loadData();
   }, [id, user, dispatch]);
 
-  /*Adding a new shopping item*/
-  const handleAddItem = async (
+  /*
+   * Add or update shopping item
+   */
+  const handleSubmitItem = async (
     event: React.FormEvent<HTMLFormElement>,
   ) => {
     event.preventDefault();
@@ -121,6 +128,46 @@ function ShoppingList() {
     try {
       dispatch(setItemError(null));
 
+      /*
+       * EDIT ITEM
+       */
+      if (editingItemId) {
+        const existingItem = items.find(
+          (item) =>
+            item.id === editingItemId,
+        );
+
+        if (!existingItem) {
+          alert("Item could not be found.");
+          return;
+        }
+
+        const updatedItem = {
+          ...existingItem,
+          name: itemName.trim(),
+          quantity,
+          category: category.trim(),
+        };
+
+        const savedItem =
+          await updateShoppingItem(
+            editingItemId,
+            updatedItem,
+          );
+
+        dispatch(updateItem(savedItem));
+
+        setEditingItemId(null);
+        setItemName("");
+        setQuantity(1);
+        setCategory("");
+
+        return;
+      }
+
+      /*
+       * ADD ITEM
+       */
       const newItem = {
         listId: id,
         name: itemName.trim(),
@@ -141,17 +188,83 @@ function ShoppingList() {
     } catch {
       dispatch(
         setItemError(
-          "Unable to add shopping item.",
+          editingItemId
+            ? "Unable to update shopping item."
+            : "Unable to add shopping item.",
         ),
       );
     }
   };
 
-  /*complete/incomplete toggle*/
+  /*
+   * Start editing an item
+   */
+  const handleEditItem = (
+    item: ShoppingItem,
+  ) => {
+    setEditingItemId(item.id);
+    setItemName(item.name);
+    setQuantity(item.quantity);
+    setCategory(item.category);
+
+    window.scrollTo({
+      top: 0,
+      behavior: "smooth",
+    });
+  };
+
+  /*
+   * Cancel editing
+   */
+  const handleCancelEdit = () => {
+    setEditingItemId(null);
+    setItemName("");
+    setQuantity(1);
+    setCategory("");
+  };
+
+  /*
+   * Delete an item
+   */
+  const handleDeleteItem = async (
+    item: ShoppingItem,
+  ) => {
+    const confirmed = window.confirm(
+      `Are you sure you want to delete "${item.name}"?`,
+    );
+
+    if (!confirmed) {
+      return;
+    }
+
+    try {
+      dispatch(setItemError(null));
+
+      await deleteShoppingItem(item.id);
+
+      dispatch(deleteItem(item.id));
+
+      if (editingItemId === item.id) {
+        handleCancelEdit();
+      }
+    } catch {
+      dispatch(
+        setItemError(
+          "Unable to delete shopping item.",
+        ),
+      );
+    }
+  };
+
+  /*
+   * Mark item as complete/incomplete
+   */
   const handleToggleComplete = async (
     item: ShoppingItem,
   ) => {
     try {
+      dispatch(setItemError(null));
+
       const updatedItem = {
         ...item,
         completed: !item.completed,
@@ -173,7 +286,9 @@ function ShoppingList() {
     }
   };
 
-  /*Search and sort items*/
+  /*
+   * Search and sort items
+   */
   const filteredAndSortedItems =
     useMemo(() => {
       let filteredItems = [...items];
@@ -243,6 +358,9 @@ function ShoppingList() {
       return filteredItems;
     }, [items, searchTerm, sortOption]);
 
+  /*
+   * Loading state
+   */
   if (listLoading) {
     return (
       <main className="shopping-list-page">
@@ -251,7 +369,9 @@ function ShoppingList() {
     );
   }
 
- 
+  /*
+   * Error state
+   */
   if (listError) {
     return (
       <main className="shopping-list-page">
@@ -271,7 +391,9 @@ function ShoppingList() {
     );
   }
 
-
+  /*
+   * Shopping list not found
+   */
   if (!shoppingList) {
     return (
       <main className="shopping-list-page">
@@ -298,6 +420,10 @@ function ShoppingList() {
 
   return (
     <main className="shopping-list-page">
+
+      {/* =========================
+          SHOPPING LIST HEADER
+          ========================= */}
 
       <section className="shopping-list-header">
 
@@ -328,20 +454,29 @@ function ShoppingList() {
 
       </section>
 
+      {/* =========================
+          ADD / EDIT ITEM
+          ========================= */}
+
       <section className="add-item-section">
 
         <div className="section-header">
-          <h2>Add Shopping Item</h2>
+          <h2>
+            {editingItemId
+              ? "Edit Shopping Item"
+              : "Add Shopping Item"}
+          </h2>
 
           <p>
-            Add an item to this shopping
-            list.
+            {editingItemId
+              ? "Update the information for this item."
+              : "Add an item to this shopping list."}
           </p>
         </div>
 
         <form
           className="add-item-form"
-          onSubmit={handleAddItem}
+          onSubmit={handleSubmitItem}
         >
 
           <div className="form-group">
@@ -398,16 +533,36 @@ function ShoppingList() {
             />
           </div>
 
-          <button
-            type="submit"
-            className="button button-primary"
-          >
-            + Add Item
-          </button>
+          <div className="item-form-buttons">
+
+            <button
+              type="submit"
+              className="button button-primary"
+            >
+              {editingItemId
+                ? "Save Changes"
+                : "+ Add Item"}
+            </button>
+
+            {editingItemId && (
+              <button
+                type="button"
+                className="button button-secondary"
+                onClick={handleCancelEdit}
+              >
+                Cancel
+              </button>
+            )}
+
+          </div>
 
         </form>
 
       </section>
+
+      {/* =========================
+          SHOPPING ITEMS
+          ========================= */}
 
       <section className="shopping-items-section">
 
@@ -491,6 +646,7 @@ function ShoppingList() {
           </div>
         )}
 
+        {/* Error */}
 
         {error && (
           <p className="error-message">
@@ -498,6 +654,7 @@ function ShoppingList() {
           </p>
         )}
 
+        {/* Loading */}
 
         {loading && (
           <p>
@@ -505,12 +662,13 @@ function ShoppingList() {
           </p>
         )}
 
+        {/* Empty list */}
 
         {!loading &&
           items.length === 0 && (
             <section className="empty-state">
               <div className="empty-state-icon">
-                
+                🛒
               </div>
 
               <h2>
@@ -523,6 +681,8 @@ function ShoppingList() {
               </p>
             </section>
           )}
+
+        {/* No search results */}
 
         {!loading &&
           items.length > 0 &&
@@ -540,6 +700,7 @@ function ShoppingList() {
             </section>
           )}
 
+        {/* Items */}
 
         {!loading &&
           filteredAndSortedItems.length >
@@ -610,6 +771,34 @@ function ShoppingList() {
                           Pending
                         </span>
                       )}
+
+                    </div>
+
+                    <div className="shopping-item-actions">
+
+                      <button
+                        type="button"
+                        className="button button-secondary button-small"
+                        onClick={() =>
+                          handleEditItem(
+                            item,
+                          )
+                        }
+                      >
+                        Edit
+                      </button>
+
+                      <button
+                        type="button"
+                        className="button button-danger button-small"
+                        onClick={() =>
+                          handleDeleteItem(
+                            item,
+                          )
+                        }
+                      >
+                        Delete
+                      </button>
 
                     </div>
 

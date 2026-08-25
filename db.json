@@ -35,6 +35,25 @@
       "id": "M23wWTAl9iw"
     }
   ],
-  "items": [],
- "$schema": "./node_modules/json-server/schema.json"
+  "items": [
+    {
+      "listId": "M23wWTAl9iw",
+      "name": "cheese",
+      "quantity": 1,
+      "category": "Dairy",
+      "completed": false,
+      "createdAt": "2026-08-25T08:12:59.529Z",
+      "id": "uhOIfLfWNv8"
+    },
+    {
+      "listId": "M23wWTAl9iw",
+      "name": "Bread",
+      "quantity": 1,
+      "category": "Wheat",
+      "completed": false,
+      "createdAt": "2026-08-25T08:13:39.618Z",
+      "id": "I0QhCzhy2-A"
+    }
+  ],
+  "$schema": "./node_modules/json-server/schema.json"
 }
