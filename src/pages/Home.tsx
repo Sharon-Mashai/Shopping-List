@@ -3,9 +3,11 @@ import { useDispatch, useSelector } from "react-redux";
 import type { AppDispatch, RootState } from "../store/store";
 import {setShoppingLists,setLoading,setError,} from "../store/slices/ShoppingListSlice";
 import { getShoppingLists } from "../services/api";
+import { useNavigate } from "react-router-dom";
 
 function Home() {
   const dispatch = useDispatch<AppDispatch>();
+  const navigate = useNavigate();
 
   const { shoppingLists, loading, error } = useSelector(
     (state: RootState) => state.shoppingLists,
@@ -43,9 +45,10 @@ function Home() {
           </p>
         </div>
 
-        <button className="button button-primary">
+       <button
+          className="button button-primary" onClick={() => navigate("/create-shopping-list")}>
           + Create List
-        </button>
+       </button>
       </section>
 
       {loading && (
@@ -68,9 +71,10 @@ function Home() {
             Start by creating your first shopping list.
           </p>
 
-          <button className="button button-primary">
-            Create Shopping List
-          </button>
+       <button className="button button-primary" onClick={() => navigate("/create-shopping-list")}>
+           Create Shopping List
+       </button>
+       
         </section>
       )}
 
