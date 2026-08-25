@@ -437,3 +437,119 @@ ul {
   color: var(--color-gray);
   line-height: 1.5;
 }
+
+/* Toolbar*/
+.list-toolbar {
+  max-width: 1200px;
+  margin: 0 auto 20px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.list-toolbar label {
+  color: var(--color-charcoal);
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.list-toolbar select {
+  padding: 9px 12px;
+  border: 1px solid var(--color-gray-light);
+  border-radius: 8px;
+  background-color: var(--color-white);
+  color: var(--color-charcoal);
+  font: inherit;
+  cursor: pointer;
+}
+
+/* Shopping List*/
+
+.shopping-list-page {
+  min-height: 100vh;
+  padding: 32px;
+  background-color: var(--color-gray-background);
+}
+
+.shopping-list-header {
+  max-width: 1200px;
+  margin: 0 auto 32px;
+}
+
+.back-link {
+  display: inline-block;
+  margin-bottom: 28px;
+  color: var(--color-charcoal);
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.back-link:hover {
+  text-decoration: underline;
+}
+
+.shopping-list-heading {
+  padding: 28px;
+  background-color: var(--color-white);
+  border: 1px solid var(--color-gray-light);
+  border-radius: var(--border-radius);
+}
+
+.shopping-list-heading h1 {
+  margin: 10px 0 8px;
+  color: var(--color-charcoal);
+  font-size: 32px;
+}
+
+.shopping-list-heading p {
+  color: var(--color-gray);
+  line-height: 1.5;
+}
+
+.shopping-items-section {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.section-header {
+  margin-bottom: 20px;
+}
+
+.section-header h2 {
+  margin-bottom: 6px;
+  color: var(--color-charcoal);
+}
+
+.section-header p {
+  color: var(--color-gray);
+}
+
+.error-state,
+.empty-state {
+  max-width: 650px;
+  margin: 60px auto;
+  padding: 40px;
+  background-color: var(--color-white);
+  border: 1px solid var(--color-gray-light);
+  border-radius: var(--border-radius);
+  text-align: center;
+}
+
+.error-state h1,
+.empty-state h2 {
+  margin-bottom: 10px;
+  color: var(--color-charcoal);
+}
+
+.error-state p,
+.empty-state p {
+  margin-bottom: 24px;
+  color: var(--color-gray);
+}
+
+.empty-state-icon {
+  margin-bottom: 16px;
+  font-size: 40px;
+}
