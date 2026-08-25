@@ -1,9 +1,9 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import type { AppDispatch, RootState } from "../store/store";
-import {addShoppingList,setError,} from "../store/slices/ShoppingListSlice";
-import { createShoppingList } from "../services/api";
+import type {AppDispatch,RootState,} from "../store/store";
+import {addShoppingList,} from "../store/slices/ShoppingListSlice";
+import {createShoppingList,} from "../services/api";
 
 function CreateShoppingList() {
   const navigate = useNavigate();
@@ -17,31 +17,41 @@ function CreateShoppingList() {
   const [category, setCategory] = useState("");
   const [notes, setNotes] = useState("");
 
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] =
+    useState<string | null>(null);
+
+  const [saving, setSaving] = useState(false);
 
   const handleSubmit = async (
     event: React.FormEvent<HTMLFormElement>,
   ) => {
     event.preventDefault();
 
+    setError(null);
+
+    if (!user) {
+      setError(
+        "You must be logged in to create a shopping list.",
+      );
+      return;
+    }
+
     if (!name.trim()) {
-      alert("Please enter a shopping list name.");
+      setError(
+        "Please enter a shopping list name.",
+      );
       return;
     }
 
     if (!category.trim()) {
-      alert("Please enter a category.");
-      return;
-    }
-
-    if (!user) {
-      alert("You must be logged in.");
+      setError(
+        "Please enter a category.",
+      );
       return;
     }
 
     try {
-      setIsSubmitting(true);
-      dispatch(setError(null));
+      setSaving(true);
 
       const newShoppingList = {
         userId: user.id,
@@ -52,34 +62,61 @@ function CreateShoppingList() {
       };
 
       const createdList =
-        await createShoppingList(newShoppingList);
+        await createShoppingList(
+          newShoppingList,
+        );
 
-      dispatch(addShoppingList(createdList));
+      dispatch(
+        addShoppingList(createdList),
+      );
 
       navigate("/home");
     } catch {
-      dispatch(
-        setError("Unable to create shopping list."),
+      setError(
+        "Unable to create shopping list. Please try again.",
       );
-
-      alert("Unable to create shopping list.");
     } finally {
-      setIsSubmitting(false);
+      setSaving(false);
     }
   };
 
   return (
-    <main className="create-list-page">
-      <section className="form-container">
-        <div className="form-header">
-          <h1>Create Shopping List</h1>
+    <main className="form-page">
+
+      <section className="form-card">
+
+        <div className="form-card-header">
+
+          <button
+            type="button"
+            className="back-button"
+            onClick={() => navigate("/home")}
+          >
+            ← Back
+          </button>
+
+          <h1>
+            Create Shopping List
+          </h1>
 
           <p>
-            Create a new list to start adding shopping items.
+            Create a new list to keep track
+            of your shopping.
           </p>
+
         </div>
 
-        <form onSubmit={handleSubmit}>
+        {error && (
+          <div className="form-error">
+            {error}
+          </div>
+        )}
+
+        <form
+          className="page-form"
+          onSubmit={handleSubmit}
+        >
+
           <div className="form-group">
             <label htmlFor="name">
               List Name
@@ -106,7 +143,9 @@ function CreateShoppingList() {
               type="text"
               value={category}
               onChange={(event) =>
-                setCategory(event.target.value)
+                setCategory(
+                  event.target.value,
+                )
               }
               placeholder="e.g. Groceries"
             />
@@ -123,16 +162,20 @@ function CreateShoppingList() {
               onChange={(event) =>
                 setNotes(event.target.value)
               }
-              placeholder="Add optional notes..."
+              placeholder="Add any notes for this list..."
               rows={4}
             />
           </div>
 
           <div className="form-actions">
+
             <button
               type="button"
               className="button button-secondary"
-              onClick={() => navigate("/home")}
+              onClick={() =>
+                navigate("/home")
+              }
+              disabled={saving}
             >
               Cancel
             </button>
@@ -140,15 +183,19 @@ function CreateShoppingList() {
             <button
               type="submit"
               className="button button-primary"
-              disabled={isSubmitting}
+              disabled={saving}
             >
-              {isSubmitting
+              {saving
                 ? "Creating..."
                 : "Create List"}
             </button>
+
           </div>
+
         </form>
+
       </section>
+
     </main>
   );
 }
