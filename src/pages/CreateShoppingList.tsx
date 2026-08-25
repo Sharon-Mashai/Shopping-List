@@ -1,12 +1,8 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-
 import type { AppDispatch, RootState } from "../store/store";
-import {
-  addShoppingList,
-  setError,
-} from "../store/slices/ShoppingListSlice";
+import {addShoppingList,setError,} from "../store/slices/ShoppingListSlice";
 import { createShoppingList } from "../services/api";
 
 function CreateShoppingList() {

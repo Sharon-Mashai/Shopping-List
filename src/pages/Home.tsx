@@ -13,13 +13,21 @@ function Home() {
     (state: RootState) => state.shoppingLists,
   );
 
+  const user = useSelector(
+  (state: RootState) => state.auth.user,
+);
+
   useEffect(() => {
   async function loadShoppingLists() {
     try {
       dispatch(setLoading(true));
       dispatch(setError(null));
 
-      const data = await getShoppingLists();
+      if (!user) {
+        return;
+        }
+        const data = await getShoppingLists(user.id);
+      
 
       dispatch(setShoppingLists(data));
     } catch {
@@ -46,7 +54,7 @@ function Home() {
         </div>
 
        <button
-          className="button button-primary" onClick={() => navigate("/create-shopping-list")}>
+          className="button button-primary" onClick={() => navigate("/CreateShoppingList")}>
           + Create List
        </button>
       </section>
@@ -71,10 +79,10 @@ function Home() {
             Start by creating your first shopping list.
           </p>
 
-       <button className="button button-primary" onClick={() => navigate("/create-shopping-list")}>
+       <button className="button button-primary" onClick={() => navigate("/CreateShoppingList")}>
            Create Shopping List
        </button>
-       
+
         </section>
       )}
 

@@ -1,7 +1,9 @@
 const API_URL = "http://localhost:3000";
 
-export async function getShoppingLists() {
-  const response = await fetch(`${API_URL}/shoppingLists`);
+export async function getShoppingLists(userId: string) {
+  const response = await fetch(
+    `${API_URL}/shoppingLists?userId=${userId}`,
+  );
 
   if (!response.ok) {
     throw new Error("Failed to load shopping lists.");

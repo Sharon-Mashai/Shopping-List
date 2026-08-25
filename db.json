@@ -9,7 +9,32 @@
       "id": "00Goc3_xfi4"
     }
   ],
-  "shoppingLists": [],
+  "shoppingLists": [
+    {
+      "userId": "00Goc3_xfi4",
+      "name": "Groceries",
+      "category": "Groceries",
+      "notes": "This is my weekly grocery",
+      "createdAt": "2026-08-25T07:25:21.101Z",
+      "id": "KY7G1vCwUVA"
+    },
+    {
+      "userId": "00Goc3_xfi4",
+      "name": "Clothes",
+      "category": "clothing",
+      "notes": "",
+      "createdAt": "2026-08-25T07:26:03.119Z",
+      "id": "RU8oZnTMZoE"
+    },
+    {
+      "userId": "00Goc3_xfi4",
+      "name": "Weekly grocery",
+      "category": "food",
+      "notes": "",
+      "createdAt": "2026-08-25T07:26:34.296Z",
+      "id": "M23wWTAl9iw"
+    }
+  ],
   "items": [],
   "$schema": "./node_modules/json-server/schema.json"
 }

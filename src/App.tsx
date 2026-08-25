@@ -27,7 +27,7 @@ function App() {
 
           <Route path="/home" element={<Home />} />
          
-          <Route path="/create-shopping-list" element={<CreateShoppingList />}/>
+          <Route path="/CreateShoppingList" element={<CreateShoppingList />}/>
 
           <Route path="/shopping-list/:id" element={<ShoppingList />} />
 
