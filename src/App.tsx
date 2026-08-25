@@ -29,11 +29,13 @@ function App() {
          
           <Route path="/CreateShoppingList" element={<CreateShoppingList />}/>
 
-          <Route path="/shopping-list/:id" element={<ShoppingList />} />
+          <Route path="/ShoppingList/:id" element={<ShoppingList />} />
 
           <Route path="/profile" element={<Profile />} />
-         
+
         </Route>
+         <Route path="*" element={ <Navigate to="/home" replace />} />
+         
 
       </Routes>
     </BrowserRouter>

@@ -124,7 +124,7 @@ function Home() {
         </div>
 
         <Link
-          to="/create-shopping-list"
+          to="/CreateShoppingList"
           className="button button-primary"
         >
           + Create List
