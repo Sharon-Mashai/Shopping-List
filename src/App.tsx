@@ -7,6 +7,7 @@ import Profile from "./pages/Profile";
 import ProtectedRoute from "./components/ProtectedRoute";
 import PublicRoute from "./components/PublicRoute";
 import CreateShoppingList from "./pages/CreateShoppingList";
+import EditShoppingList from "./pages/EditShoppingList";
 
 function App() {
   return (
@@ -28,6 +29,8 @@ function App() {
           <Route path="/home" element={<Home />} />
          
           <Route path="/CreateShoppingList" element={<CreateShoppingList />}/>
+
+          <Route path = "/EditShoppingList" element={<EditShoppingList/>}/>
 
           <Route path="/ShoppingList/:id" element={<ShoppingList />} />
 

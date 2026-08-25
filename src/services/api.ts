@@ -1,39 +1,18 @@
-const API_URL = "http://localhost:3000";
+const API_URL ="http://localhost:3000";
 
 
 export async function getShoppingLists(
-  userId: string,
+  userId?: string,
 ) {
-  const response = await fetch(
-    `${API_URL}/shoppingLists?userId=${userId}`,
-  );
+  const url = userId
+    ? `${API_URL}/shoppingLists?userId=${userId}`
+    : `${API_URL}/shoppingLists`;
+
+  const response = await fetch(url);
 
   if (!response.ok) {
     throw new Error(
-      "Failed to load shopping lists.",
-    );
-  }
-
-  return response.json();
-}
-
-export async function createShoppingList(
-  shoppingList: object,
-) {
-  const response = await fetch(
-    `${API_URL}/shoppingLists`,
-    {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(shoppingList),
-    },
-  );
-
-  if (!response.ok) {
-    throw new Error(
-      "Failed to create shopping list.",
+      "Unable to load shopping lists.",
     );
   }
 
@@ -49,7 +28,30 @@ export async function getShoppingList(
 
   if (!response.ok) {
     throw new Error(
-      "Failed to load shopping list.",
+      "Unable to load shopping list.",
+    );
+  }
+
+  return response.json();
+}
+
+export async function createShoppingList(
+  list: object,
+) {
+  const response = await fetch(
+    `${API_URL}/shoppingLists`,
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(list),
+    },
+  );
+
+  if (!response.ok) {
+    throw new Error(
+      "Unable to create shopping list.",
     );
   }
 
@@ -58,7 +60,7 @@ export async function getShoppingList(
 
 export async function updateShoppingList(
   id: string,
-  shoppingList: object,
+  list: object,
 ) {
   const response = await fetch(
     `${API_URL}/shoppingLists/${id}`,
@@ -67,13 +69,13 @@ export async function updateShoppingList(
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify(shoppingList),
+      body: JSON.stringify(list),
     },
   );
 
   if (!response.ok) {
     throw new Error(
-      "Failed to update shopping list.",
+      "Unable to update shopping list.",
     );
   }
 
@@ -92,22 +94,23 @@ export async function deleteShoppingList(
 
   if (!response.ok) {
     throw new Error(
-      "Failed to delete shopping list.",
+      "Unable to delete shopping list.",
     );
   }
 }
+
 
 
 export async function getShoppingItems(
   listId: string,
 ) {
   const response = await fetch(
-    `${API_URL}/items?listId=${listId}`,
+    `${API_URL}/shoppingItems?listId=${listId}`,
   );
 
   if (!response.ok) {
     throw new Error(
-      "Failed to load shopping items.",
+      "Unable to load shopping items.",
     );
   }
 
@@ -118,7 +121,7 @@ export async function createShoppingItem(
   item: object,
 ) {
   const response = await fetch(
-    `${API_URL}/items`,
+    `${API_URL}/shoppingItems`,
     {
       method: "POST",
       headers: {
@@ -130,7 +133,7 @@ export async function createShoppingItem(
 
   if (!response.ok) {
     throw new Error(
-      "Failed to create shopping item.",
+      "Unable to create shopping item.",
     );
   }
 
@@ -142,7 +145,7 @@ export async function updateShoppingItem(
   item: object,
 ) {
   const response = await fetch(
-    `${API_URL}/items/${id}`,
+    `${API_URL}/shoppingItems/${id}`,
     {
       method: "PATCH",
       headers: {
@@ -154,7 +157,7 @@ export async function updateShoppingItem(
 
   if (!response.ok) {
     throw new Error(
-      "Failed to update shopping item.",
+      "Unable to update shopping item.",
     );
   }
 
@@ -165,7 +168,7 @@ export async function deleteShoppingItem(
   id: string,
 ) {
   const response = await fetch(
-    `${API_URL}/items/${id}`,
+    `${API_URL}/shoppingItems/${id}`,
     {
       method: "DELETE",
     },
@@ -173,7 +176,7 @@ export async function deleteShoppingItem(
 
   if (!response.ok) {
     throw new Error(
-      "Failed to delete shopping item.",
+      "Unable to delete shopping item.",
     );
   }
 }

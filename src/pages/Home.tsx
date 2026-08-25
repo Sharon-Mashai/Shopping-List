@@ -1,13 +1,15 @@
-import { useEffect, useMemo,useState,} from "react";
-import {Link,} from "react-router-dom";
-import {useDispatch,useSelector} from "react-redux";
-import type { AppDispatch,RootState,} from "../store/store";
-import {setShoppingLists,setLoading,setError,} from "../store/slices/ShoppingListSlice";
-import { getShoppingLists,} from "../services/api";
+import {useEffect,useMemo,useState,} from "react";
+import {Link,useNavigate,} from "react-router-dom";
+import { useDispatch, useSelector,} from "react-redux";
+import type {AppDispatch,RootState,} from "../store/store";
+import { setShoppingLists,setLoading,setError,deleteShoppingList as deleteShoppingListState,} from "../store/slices/ShoppingListSlice";
+import { getShoppingLists, deleteShoppingList,getShoppingItems,deleteShoppingItem,} from "../services/api";
 
 function Home() {
   const dispatch =
     useDispatch<AppDispatch>();
+
+  const navigate = useNavigate();
 
   const user = useSelector(
     (state: RootState) =>
@@ -27,6 +29,11 @@ function Home() {
     sortOption,
     setSortOption,
   ] = useState("newest");
+
+  const [
+    deletingListId,
+    setDeletingListId,
+  ] = useState<string | null>(null);
 
   useEffect(() => {
     async function loadShoppingLists() {
@@ -107,6 +114,61 @@ function Home() {
       sortOption,
     ]);
 
+  const handleDeleteList = async (
+    id: string,
+    name: string,
+  ) => {
+    const confirmed =
+      window.confirm(
+        `Are you sure you want to delete "${name}"? This will also delete all items in this list.`,
+      );
+
+    if (!confirmed) {
+      return;
+    }
+
+    try {
+      setDeletingListId(id);
+
+      /*
+       * First find all items
+       * belonging to this list.
+       */
+      const items =
+        await getShoppingItems(id);
+
+      /*
+       * Delete all items belonging
+       * to the shopping list.
+       */
+      for (const item of items) {
+        await deleteShoppingItem(
+          item.id,
+        );
+      }
+
+      /*
+       * Delete the shopping list.
+       */
+      await deleteShoppingList(id);
+
+      /*
+       * Update Redux Toolkit state.
+       */
+      dispatch(
+        deleteShoppingListState(id),
+      );
+    } catch {
+      dispatch(
+        setError(
+          "Unable to delete shopping list.",
+        ),
+      );
+    } finally {
+      setDeletingListId(null);
+    }
+  };
+
   return (
     <main className="home-page">
 
@@ -124,7 +186,7 @@ function Home() {
         </div>
 
         <Link
-          to="/CreateShoppingList"
+          to="/create-shopping-list"
           className="button button-primary"
         >
           + Create List
@@ -151,7 +213,7 @@ function Home() {
           <section className="empty-state">
 
             <div className="empty-state-icon">
-              
+              🛒
             </div>
 
             <h2>
@@ -234,12 +296,43 @@ function Home() {
                         </p>
                       )}
 
-                      <Link
-                        to={`/ShoppingList/${list.id}`}
-                        className="button button-primary"
-                      >
-                        Open List
-                      </Link>
+                      <div className="shopping-list-card-actions">
+
+                        <Link
+                          to={`/shopping-list/${list.id}`}
+                          className="button button-primary"
+                        >
+                          Open List
+                        </Link>
+
+                        <Link
+                          to={`/edit-shopping-list/${list.id}`}
+                          className="button button-secondary"
+                        >
+                          Edit
+                        </Link>
+
+                        <button
+                          type="button"
+                          className="button button-danger"
+                          onClick={() =>
+                            handleDeleteList(
+                              list.id,
+                              list.name,
+                            )
+                          }
+                          disabled={
+                            deletingListId ===
+                            list.id
+                          }
+                        >
+                          {deletingListId ===
+                          list.id
+                            ? "Deleting..."
+                            : "Delete"}
+                        </button>
+
+                      </div>
 
                     </div>
 
