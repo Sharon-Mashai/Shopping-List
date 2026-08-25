@@ -23,26 +23,32 @@ const shoppingListSlice = createSlice({
       state,
       action: PayloadAction<ShoppingList[]>,
     ) => {
-      state.shoppingLists = action.payload;
+      state.shoppingLists =
+        action.payload;
     },
 
     addShoppingList: (
       state,
       action: PayloadAction<ShoppingList>,
     ) => {
-      state.shoppingLists.push(action.payload);
+      state.shoppingLists.push(
+        action.payload,
+      );
     },
 
     updateShoppingList: (
       state,
       action: PayloadAction<ShoppingList>,
     ) => {
-      const index = state.shoppingLists.findIndex(
-        (list) => list.id === action.payload.id,
-      );
+      const index =
+        state.shoppingLists.findIndex(
+          (list) =>
+            list.id === action.payload.id,
+        );
 
       if (index !== -1) {
-        state.shoppingLists[index] = action.payload;
+        state.shoppingLists[index] =
+          action.payload;
       }
     },
 
@@ -50,9 +56,11 @@ const shoppingListSlice = createSlice({
       state,
       action: PayloadAction<string>,
     ) => {
-      state.shoppingLists = state.shoppingLists.filter(
-        (list) => list.id !== action.payload,
-      );
+      state.shoppingLists =
+        state.shoppingLists.filter(
+          (list) =>
+            list.id !== action.payload,
+        );
     },
 
     setLoading: (
