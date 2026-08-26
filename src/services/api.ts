@@ -1,6 +1,4 @@
-const API_URL =
-  "http://localhost:3000";
-
+const API_URL = "http://localhost:3000";
 
 export async function getShoppingLists(
   userId?: string,
@@ -20,6 +18,7 @@ export async function getShoppingLists(
   return response.json();
 }
 
+
 export async function getShoppingList(
   id: string,
 ) {
@@ -36,6 +35,7 @@ export async function getShoppingList(
   return response.json();
 }
 
+
 export async function createShoppingList(
   list: object,
 ) {
@@ -43,9 +43,11 @@ export async function createShoppingList(
     `${API_URL}/shoppingLists`,
     {
       method: "POST",
+
       headers: {
         "Content-Type": "application/json",
       },
+
       body: JSON.stringify(list),
     },
   );
@@ -59,6 +61,7 @@ export async function createShoppingList(
   return response.json();
 }
 
+
 export async function updateShoppingList(
   id: string,
   list: object,
@@ -67,9 +70,11 @@ export async function updateShoppingList(
     `${API_URL}/shoppingLists/${id}`,
     {
       method: "PATCH",
+
       headers: {
         "Content-Type": "application/json",
       },
+
       body: JSON.stringify(list),
     },
   );
@@ -82,6 +87,7 @@ export async function updateShoppingList(
 
   return response.json();
 }
+
 
 export async function deleteShoppingList(
   id: string,
@@ -105,7 +111,7 @@ export async function getShoppingItems(
   shoppingListId: string,
 ) {
   const response = await fetch(
-    `${API_URL}/shoppingItems?shoppingListId=${shoppingListId}`,
+    `${API_URL}/shoppingItems?listId=${shoppingListId}`,
   );
 
   if (!response.ok) {
@@ -116,7 +122,6 @@ export async function getShoppingItems(
 
   return response.json();
 }
-
 
 export async function getShoppingItem(
   id: string,
@@ -134,7 +139,6 @@ export async function getShoppingItem(
   return response.json();
 }
 
-
 export async function createShoppingItem(
   item: object,
 ) {
@@ -142,9 +146,11 @@ export async function createShoppingItem(
     `${API_URL}/shoppingItems`,
     {
       method: "POST",
+
       headers: {
         "Content-Type": "application/json",
       },
+
       body: JSON.stringify(item),
     },
   );
@@ -167,9 +173,11 @@ export async function updateShoppingItem(
     `${API_URL}/shoppingItems/${id}`,
     {
       method: "PATCH",
+
       headers: {
         "Content-Type": "application/json",
       },
+
       body: JSON.stringify(item),
     },
   );
@@ -201,6 +209,7 @@ export async function deleteShoppingItem(
   }
 }
 
+
 export async function getUser(
   id: string,
 ) {
@@ -226,9 +235,11 @@ export async function updateUser(
     `${API_URL}/users/${id}`,
     {
       method: "PATCH",
+
       headers: {
         "Content-Type": "application/json",
       },
+
       body: JSON.stringify(user),
     },
   );

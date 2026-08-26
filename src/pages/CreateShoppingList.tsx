@@ -1,12 +1,14 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import type {AppDispatch,RootState,} from "../store/store";
+import type { AppDispatch,RootState,} from "../store/store";
 import {addShoppingList,} from "../store/slices/ShoppingListSlice";
 import {createShoppingList,} from "../services/api";
+import {searchUnsplashImage,} from "../services/unsplash";
 
 function CreateShoppingList() {
   const navigate = useNavigate();
+
   const dispatch = useDispatch<AppDispatch>();
 
   const user = useSelector(
@@ -14,11 +16,12 @@ function CreateShoppingList() {
   );
 
   const [name, setName] = useState("");
+
   const [category, setCategory] = useState("");
+
   const [notes, setNotes] = useState("");
 
-  const [error, setError] =
-    useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
   const [saving, setSaving] = useState(false);
 
@@ -33,6 +36,7 @@ function CreateShoppingList() {
       setError(
         "You must be logged in to create a shopping list.",
       );
+
       return;
     }
 
@@ -40,6 +44,7 @@ function CreateShoppingList() {
       setError(
         "Please enter a shopping list name.",
       );
+
       return;
     }
 
@@ -47,18 +52,46 @@ function CreateShoppingList() {
       setError(
         "Please enter a category.",
       );
+
       return;
     }
 
     try {
       setSaving(true);
 
+      let unsplashImage = null;
+
+      try {
+        unsplashImage =
+          await searchUnsplashImage(
+            `${name.trim()} ${category.trim()}`,
+          );
+      } catch (unsplashError) {
+        console.error(
+          "Unsplash search failed:",
+          unsplashError,
+        );
+      }
+
       const newShoppingList = {
         userId: user.id,
         name: name.trim(),
         category: category.trim(),
         notes: notes.trim(),
-        createdAt: new Date().toISOString(),
+        createdAt:
+          new Date().toISOString(),
+
+        imageUrl:
+          unsplashImage?.imageUrl,
+
+        unsplashPhotoId:
+          unsplashImage?.unsplashPhotoId,
+
+        photographerName:
+          unsplashImage?.photographerName,
+
+        photographerProfileUrl:
+          unsplashImage?.photographerProfileUrl,
       };
 
       const createdList =
@@ -82,7 +115,6 @@ function CreateShoppingList() {
 
   return (
     <main className="form-page">
-
       <section className="form-card">
 
         <div className="form-card-header">
@@ -90,7 +122,9 @@ function CreateShoppingList() {
           <button
             type="button"
             className="back-button"
-            onClick={() => navigate("/home")}
+            onClick={() =>
+              navigate("/home")
+            }
           >
             ← Back
           </button>
@@ -118,6 +152,7 @@ function CreateShoppingList() {
         >
 
           <div className="form-group">
+
             <label htmlFor="name">
               List Name
             </label>
@@ -127,13 +162,18 @@ function CreateShoppingList() {
               type="text"
               value={name}
               onChange={(event) =>
-                setName(event.target.value)
+                setName(
+                  event.target.value,
+                )
               }
               placeholder="e.g. Weekly Groceries"
+              disabled={saving}
             />
+
           </div>
 
           <div className="form-group">
+
             <label htmlFor="category">
               Category
             </label>
@@ -148,10 +188,13 @@ function CreateShoppingList() {
                 )
               }
               placeholder="e.g. Groceries"
+              disabled={saving}
             />
+
           </div>
 
           <div className="form-group">
+
             <label htmlFor="notes">
               Notes
             </label>
@@ -160,11 +203,15 @@ function CreateShoppingList() {
               id="notes"
               value={notes}
               onChange={(event) =>
-                setNotes(event.target.value)
+                setNotes(
+                  event.target.value,
+                )
               }
               placeholder="Add any notes for this list..."
               rows={4}
+              disabled={saving}
             />
+
           </div>
 
           <div className="form-actions">
@@ -195,7 +242,6 @@ function CreateShoppingList() {
         </form>
 
       </section>
-
     </main>
   );
 }

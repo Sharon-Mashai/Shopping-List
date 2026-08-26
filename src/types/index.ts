@@ -5,6 +5,11 @@ export interface ShoppingList {
   category: string;
   notes?: string;
   createdAt: string;
+
+  imageUrl?: string;
+  unsplashPhotoId?: string;
+  photographerName?: string;
+  photographerProfileUrl?: string;
 }
 
 export interface ShoppingItem {
@@ -13,7 +18,11 @@ export interface ShoppingItem {
   name: string;
   quantity: number;
   category: string;
-  image?: string;
   completed: boolean;
   createdAt: string;
+
+  imageUrl?: string;
+  unsplashPhotoId?: string;
+  photographerName?: string;
+  photographerProfileUrl?: string;
 }

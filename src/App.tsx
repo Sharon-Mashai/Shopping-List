@@ -1,10 +1,4 @@
-import {
-  BrowserRouter,
-  Routes,
-  Route,
-  Navigate,
-} from "react-router-dom";
-
+import {BrowserRouter,Routes,Route,Navigate,} from "react-router-dom";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Home from "./pages/Home";
@@ -21,7 +15,7 @@ function App() {
     <BrowserRouter>
       <Routes>
 
-        {/* Public pages */}
+    
         <Route element={<PublicRoute />}>
           <Route
             path="/login"
@@ -34,7 +28,6 @@ function App() {
           />
         </Route>
 
-        {/* Protected pages */}
         <Route element={<ProtectedRoute />}>
           <Route element={<DashboardLayout />}>
 
@@ -66,7 +59,6 @@ function App() {
           </Route>
         </Route>
 
-        {/* Default */}
         <Route
           path="/"
           element={
@@ -77,7 +69,6 @@ function App() {
           }
         />
 
-        {/* Unknown routes */}
         <Route
           path="*"
           element={
