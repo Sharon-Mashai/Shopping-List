@@ -246,8 +246,6 @@ function Home() {
             </div>
           </article>
 
-          {/* To Buy */}
-
           <article className="dashboard-stat-card">
             <div className="dashboard-stat-icon">
               <HugeiconsIcon icon={ShoppingCart01Icon} size={26} />
@@ -416,20 +414,6 @@ function Home() {
                       </span>
                     </button>
                   </div>
-
-                  {list.photographerName && list.photographerProfileUrl && (
-                    <p className="unsplash-attribution">
-                      Photo by{" "}
-                      <a
-                        href={list.photographerProfileUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                      >
-                        {list.photographerName}
-                      </a>{" "}
-                      on Unsplash
-                    </p>
-                  )}
                 </article>
               );
             })}

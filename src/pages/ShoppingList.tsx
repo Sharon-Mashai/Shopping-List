@@ -565,19 +565,6 @@ function ShoppingList() {
                     <span>{item.category}</span>
                   </div>
 
-                  {item.photographerName && item.photographerProfileUrl && (
-                    <small className="unsplash-attribution">
-                      Photo by{" "}
-                      <a
-                        href={item.photographerProfileUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                      >
-                        {item.photographerName}
-                      </a>{" "}
-                      on Unsplash
-                    </small>
-                  )}
                 </div>
 
                 <div className="shopping-item-status">
