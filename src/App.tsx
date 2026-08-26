@@ -1,4 +1,10 @@
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import {
+  BrowserRouter,
+  Routes,
+  Route,
+  Navigate,
+} from "react-router-dom";
+
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Home from "./pages/Home";
@@ -8,39 +14,80 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import PublicRoute from "./components/PublicRoute";
 import CreateShoppingList from "./pages/CreateShoppingList";
 import EditShoppingList from "./pages/EditShoppingList";
+import DashboardLayout from "./components/DashboardLayout";
 
 function App() {
   return (
     <BrowserRouter>
       <Routes>
 
+        {/* Public pages */}
         <Route element={<PublicRoute />}>
-          <Route path="/login" element={<Login />} />
+          <Route
+            path="/login"
+            element={<Login />}
+          />
 
-          <Route path="/register" element={<Register />} />
+          <Route
+            path="/register"
+            element={<Register />}
+          />
         </Route>
 
+        {/* Protected pages */}
         <Route element={<ProtectedRoute />}>
-          <Route path="/home" element={<Home />} />
+          <Route element={<DashboardLayout />}>
 
-          <Route
-            path="/create-shopping-list" element={<CreateShoppingList />}
-          />
+            <Route
+              path="/home"
+              element={<Home />}
+            />
 
-          <Route
-            path="/edit-shopping-list/:id" element={<EditShoppingList />}
-          />
+            <Route
+              path="/create-shopping-list"
+              element={<CreateShoppingList />}
+            />
 
-          <Route path="/shopping-list/:id" element={<ShoppingList />} />
+            <Route
+              path="/edit-shopping-list/:id"
+              element={<EditShoppingList />}
+            />
 
-          <Route path="/profile" element={<Profile />} />
-          
+            <Route
+              path="/shopping-list/:id"
+              element={<ShoppingList />}
+            />
+
+            <Route
+              path="/profile"
+              element={<Profile />}
+            />
+
+          </Route>
         </Route>
 
-        <Route path="/" element={<Navigate to="/login" replace />} />
+        {/* Default */}
+        <Route
+          path="/"
+          element={
+            <Navigate
+              to="/login"
+              replace
+            />
+          }
+        />
 
+        {/* Unknown routes */}
+        <Route
+          path="*"
+          element={
+            <Navigate
+              to="/home"
+              replace
+            />
+          }
+        />
 
-        <Route path="*" element={<Navigate to="/home" replace />} />
       </Routes>
     </BrowserRouter>
   );
