@@ -84,7 +84,16 @@ function Home() {
   };
 
   return (
+  
     <main className="home-page">
+      <div className="home-navigation">
+  <Link
+    to="/profile"
+    className="button button-secondary"
+  >
+    Profile
+  </Link>
+</div>
       <section className="page-header">
         <div>
           <h1>My Shopping Lists</h1>
