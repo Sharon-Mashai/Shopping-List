@@ -1,10 +1,12 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import type {AppDispatch,RootState,} from "../store/store";
+import { HugeiconsIcon } from "@hugeicons/react";
+import { ListViewIcon, ShoppingBasket01Icon, ShoppingCart01Icon,Tick01Icon, Add01Icon, FileEmpty02Icon,} from "@hugeicons/core-free-icons";
+import type { AppDispatch, RootState,} from "../store/store";
 import type {ShoppingItem,ShoppingList as ShoppingListType,} from "../types";
-import {setShoppingLists,setLoading,setError,deleteShoppingList as deleteShoppingListState,} from "../store/slices/ShoppingListSlice";
-import {getShoppingLists, getShoppingItems,deleteShoppingList,} from "../services/api";
+import {setShoppingLists, setLoading, setError,deleteShoppingList as deleteShoppingListState,} from "../store/slices/ShoppingListSlice";
+import { getShoppingLists, getShoppingItems, deleteShoppingList,} from "../services/api";
 
 type ListStats = {
   total: number;
@@ -14,9 +16,15 @@ type ListStats = {
 function Home() {
   const dispatch = useDispatch<AppDispatch>();
 
-  const user = useSelector((state: RootState) => state.auth.user, );
+  const user = useSelector(
+    (state: RootState) => state.auth.user,
+  );
 
-  const {shoppingLists,loading,error,} = useSelector(
+  const {
+    shoppingLists,
+    loading,
+    error,
+  } = useSelector(
     (state: RootState) => state.shoppingLists,
   );
 
@@ -32,7 +40,6 @@ function Home() {
   const [statsLoading, setStatsLoading] =
     useState(false);
 
- 
   useEffect(() => {
     async function loadShoppingLists() {
       try {
@@ -48,50 +55,38 @@ function Home() {
 
         dispatch(setShoppingLists(data));
 
-    
         setStatsLoading(true);
 
         const statsEntries = await Promise.all(
-          data.map(
-            async (
-              list: ShoppingListType,
-            ) => {
-              try {
-                const items: ShoppingItem[] =
-                  await getShoppingItems(
-                    list.id,
-                  );
+          data.map(async (list: ShoppingListType) => {
+            try {
+              const items: ShoppingItem[] =
+                await getShoppingItems(list.id);
 
-                return [
-                  list.id,
-                  {
-                    total: items.length,
-                    completed:
-                      items.filter(
-                        (
-                          item: ShoppingItem,
-                        ) =>
-                          item.completed,
-                      ).length,
-                  },
-                ] as const;
-              } catch {
-                return [
-                  list.id,
-                  {
-                    total: 0,
-                    completed: 0,
-                  },
-                ] as const;
-              }
-            },
-          ),
+              return [
+                list.id,
+                {
+                  total: items.length,
+                  completed: items.filter(
+                    (item: ShoppingItem) =>
+                      item.completed,
+                  ).length,
+                },
+              ] as const;
+            } catch {
+              return [
+                list.id,
+                {
+                  total: 0,
+                  completed: 0,
+                },
+              ] as const;
+            }
+          }),
         );
 
         setListStats(
-          Object.fromEntries(
-            statsEntries,
-          ),
+          Object.fromEntries(statsEntries),
         );
       } catch {
         dispatch(
@@ -108,86 +103,53 @@ function Home() {
     loadShoppingLists();
   }, [dispatch, user]);
 
-  const sortedShoppingLists =
-    useMemo(() => {
-      const lists = [
-        ...shoppingLists,
-      ];
+  const sortedShoppingLists = useMemo(() => {
+    const lists = [...shoppingLists];
 
-      if (sortOption === "name") {
-        return lists.sort(
-          (
-            a: ShoppingListType,
-            b: ShoppingListType,
-          ) =>
-            a.name.localeCompare(
-              b.name,
-            ),
-        );
-      }
-
-      if (sortOption === "oldest") {
-        return lists.sort(
-          (
-            a: ShoppingListType,
-            b: ShoppingListType,
-          ) =>
-            new Date(
-              a.createdAt,
-            ).getTime() -
-            new Date(
-              b.createdAt,
-            ).getTime(),
-        );
-      }
-
+    if (sortOption === "name") {
       return lists.sort(
-        (
-          a: ShoppingListType,
-          b: ShoppingListType,
-        ) =>
-          new Date(
-            b.createdAt,
-          ).getTime() -
-          new Date(
-            a.createdAt,
-          ).getTime(),
+        (a: ShoppingListType, b: ShoppingListType) =>
+          a.name.localeCompare(b.name),
       );
-    }, [shoppingLists, sortOption]);
+    }
 
- 
-  const totalItems =
-    Object.values(listStats).reduce(
-      (
-        total: number,
-        stats: ListStats,
-      ) =>
-        total + stats.total,
-      0,
-    );
+    if (sortOption === "oldest") {
+      return lists.sort(
+        (a: ShoppingListType, b: ShoppingListType) =>
+          new Date(a.createdAt).getTime() -
+          new Date(b.createdAt).getTime(),
+      );
+    }
 
-  const purchasedItems =
-    Object.values(listStats).reduce(
-      (
-        total: number,
-        stats: ListStats,
-      ) =>
-        total + stats.completed,
-      0,
+    return lists.sort(
+      (a: ShoppingListType, b: ShoppingListType) =>
+        new Date(b.createdAt).getTime() -
+        new Date(a.createdAt).getTime(),
     );
+  }, [shoppingLists, sortOption]);
+
+  const totalItems = Object.values(listStats).reduce(
+    (total: number, stats: ListStats) =>
+      total + stats.total,
+    0,
+  );
+
+  const purchasedItems = Object.values(listStats).reduce(
+    (total: number, stats: ListStats) =>
+      total + stats.completed,
+    0,
+  );
 
   const itemsToBuy =
     totalItems - purchasedItems;
 
-  
   const handleDeleteList = async (
     id: string,
     name: string,
   ) => {
-    const confirmed =
-      window.confirm(
-        `Are you sure you want to delete "${name}"?`,
-      );
+    const confirmed = window.confirm(
+      `Are you sure you want to delete "${name}"?`,
+    );
 
     if (!confirmed) {
       return;
@@ -229,8 +191,9 @@ function Home() {
     }
   };
 
-
-  const getListStats = ( listId: string,): ListStats => {
+  const getListStats = (
+    listId: string,
+  ): ListStats => {
     return (
       listStats[listId] || {
         total: 0,
@@ -239,36 +202,32 @@ function Home() {
     );
   };
 
-
   const getProgress = (
-    listId: string,): number => { const stats = getListStats(listId);
+    listId: string,
+  ): number => {
+    const stats = getListStats(listId);
 
     if (stats.total === 0) {
       return 0;
     }
 
     return Math.round(
-      (stats.completed /
-        stats.total) *
-        100,
+      (stats.completed / stats.total) * 100,
     );
   };
 
+  const getRemaining = (
+    listId: string,
+  ): number => {
+    const stats = getListStats(listId);
 
-  const getRemaining = ( listId: string,): number => { const stats = getListStats(listId);
-
-    return (
-      stats.total -
-      stats.completed
-    );
+    return stats.total - stats.completed;
   };
 
   const getUpdatedText = (
     createdAt: string,
   ): string => {
-    const createdDate =
-      new Date(createdAt);
-
+    const createdDate = new Date(createdAt);
     const now = new Date();
 
     const difference =
@@ -293,10 +252,9 @@ function Home() {
 
   return (
     <main className="home-page">
-
+      {/* Header */}
 
       <section className="home-header">
-
         <div>
           <h1>
             Welcome back,{" "}
@@ -313,11 +271,14 @@ function Home() {
           to="/create-shopping-list"
           className="button button-primary home-create-button"
         >
-          + Create New List
+          <HugeiconsIcon
+            icon={Add01Icon}
+            size={18}
+          />
+
+          <span>Create New List</span>
         </Link>
-
       </section>
-
 
       {error && (
         <p className="error-message">
@@ -325,22 +286,20 @@ function Home() {
         </p>
       )}
 
-
       {!loading && !error && (
         <section className="dashboard-stats">
-
-          {/* My Lists */}
+         
 
           <article className="dashboard-stat-card">
-
             <div className="dashboard-stat-icon">
-              
+              <HugeiconsIcon
+                icon={ListViewIcon}
+                size={26}
+              />
             </div>
 
             <div>
-              <span>
-                My Lists
-              </span>
+              <span>My Lists</span>
 
               <strong>
                 {shoppingLists.length}
@@ -350,21 +309,19 @@ function Home() {
                 Total shopping lists
               </small>
             </div>
-
           </article>
 
-          {/* Total Items */}
 
           <article className="dashboard-stat-card">
-
             <div className="dashboard-stat-icon">
-              
+              <HugeiconsIcon
+                icon={ShoppingBasket01Icon}
+                size={26}
+              />
             </div>
 
             <div>
-              <span>
-                Items
-              </span>
+              <span>Items</span>
 
               <strong>
                 {statsLoading
@@ -376,21 +333,20 @@ function Home() {
                 Total items
               </small>
             </div>
-
           </article>
 
-          {/* Items To Buy */}
+        
 
           <article className="dashboard-stat-card">
-
             <div className="dashboard-stat-icon">
-              
+              <HugeiconsIcon
+                icon={ShoppingCart01Icon}
+                size={26}
+              />
             </div>
 
             <div>
-              <span>
-                To Buy
-              </span>
+              <span>To Buy</span>
 
               <strong>
                 {statsLoading
@@ -402,21 +358,18 @@ function Home() {
                 Items remaining
               </small>
             </div>
-
           </article>
 
-        
-
           <article className="dashboard-stat-card">
-
             <div className="dashboard-stat-icon">
-              
+              <HugeiconsIcon
+                icon={Tick01Icon}
+                size={26}
+              />
             </div>
 
             <div>
-              <span>
-                Purchased
-              </span>
+              <span>Purchased</span>
 
               <strong>
                 {statsLoading
@@ -428,21 +381,19 @@ function Home() {
                 Items bought
               </small>
             </div>
-
           </article>
-
         </section>
       )}
-
-  
 
       {!loading &&
         !error &&
         shoppingLists.length === 0 && (
           <section className="empty-state home-empty-state">
-
             <div className="empty-state-icon">
-              
+              <HugeiconsIcon
+                icon={FileEmpty02Icon}
+                size={42}
+              />
             </div>
 
             <h2>
@@ -458,20 +409,23 @@ function Home() {
               to="/create-shopping-list"
               className="button button-primary"
             >
-              Create Shopping List
-            </Link>
+              <HugeiconsIcon
+                icon={Add01Icon}
+                size={18}
+              />
 
+              <span>
+                Create Shopping List
+              </span>
+            </Link>
           </section>
         )}
-
 
       {!loading &&
         !error &&
         shoppingLists.length > 0 && (
           <section className="home-shopping-section">
-
             <div className="home-section-header">
-
               <div>
                 <h2>
                   Your Shopping Lists
@@ -484,7 +438,6 @@ function Home() {
               </div>
 
               <div className="home-sort">
-
                 <label htmlFor="sort">
                   Sort by
                 </label>
@@ -510,47 +463,38 @@ function Home() {
                     Name
                   </option>
                 </select>
-
               </div>
-
             </div>
 
             <div className="home-shopping-lists">
-
               {sortedShoppingLists.map(
-                (
-                  list: ShoppingListType,
-                ) => {
+                (list: ShoppingListType) => {
                   const stats =
-                    getListStats(
-                      list.id,
-                    );
+                    getListStats(list.id);
 
                   const progress =
-                    getProgress(
-                      list.id,
-                    );
+                    getProgress(list.id);
 
                   const remaining =
-                    getRemaining(
-                      list.id,
-                    );
+                    getRemaining(list.id);
 
                   return (
                     <article
                       className="home-shopping-card"
                       key={list.id}
                     >
-
-
                       <div className="home-shopping-card-top">
 
                         <div className="home-shopping-card-icon">
-                          
+                          <HugeiconsIcon
+                            icon={
+                              ShoppingBasket01Icon
+                            }
+                            size={25}
+                          />
                         </div>
 
                         <div className="home-shopping-card-info">
-
                           <span className="shopping-list-category">
                             {list.category}
                           </span>
@@ -564,7 +508,6 @@ function Home() {
                               list.createdAt,
                             )}
                           </p>
-
                         </div>
 
                         <span
@@ -578,10 +521,7 @@ function Home() {
                             ? "Completed"
                             : `${remaining} remaining`}
                         </span>
-
                       </div>
-
-                 
 
                       {list.notes && (
                         <p className="home-list-notes">
@@ -589,12 +529,8 @@ function Home() {
                         </p>
                       )}
 
-                    
-
                       <div className="home-progress-area">
-
                         <div className="home-progress-header">
-
                           <span>
                             {stats.completed}{" "}
                             of{" "}
@@ -605,36 +541,37 @@ function Home() {
                           <strong>
                             {progress}%
                           </strong>
-
                         </div>
 
                         <div className="progress-track">
-
                           <div
                             className="progress-bar"
                             style={{
                               width: `${progress}%`,
                             }}
                           />
-
                         </div>
-
                       </div>
 
                       <div className="home-card-actions">
-
                         <Link
                           to={`/shopping-list/${list.id}`}
                           className="button button-primary"
                         >
-                          Open List
+
+                          <span>
+                            Open List
+                          </span>
                         </Link>
 
                         <Link
                           to={`/edit-shopping-list/${list.id}`}
                           className="button button-secondary"
                         >
-                          Edit
+
+                          <span>
+                            Edit
+                          </span>
                         </Link>
 
                         <button
@@ -651,31 +588,28 @@ function Home() {
                             list.id
                           }
                         >
-                          {deletingListId ===
-                          list.id
-                            ? "Deleting..."
-                            : "Delete"}
+
+                          <span>
+                            {deletingListId ===
+                            list.id
+                              ? "Deleting..."
+                              : "Delete"}
+                          </span>
                         </button>
-
                       </div>
-
                     </article>
                   );
                 },
               )}
-
             </div>
-
           </section>
         )}
 
-    
       {loading && (
         <p className="loading-message">
           Loading your shopping lists...
         </p>
       )}
-
     </main>
   );
 }

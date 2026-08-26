@@ -1,6 +1,8 @@
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import type { AppDispatch, RootState } from "../store/store";
+import { HugeiconsIcon } from "@hugeicons/react";
+import {Home01Icon,ListViewIcon,UserIcon,Logout01Icon,} from "@hugeicons/core-free-icons";
+import type { AppDispatch, RootState,} from "../store/store";
 import { logout } from "../store/slices/authSlice";
 
 function Sidebar() {
@@ -14,13 +16,16 @@ function Sidebar() {
 
   const handleLogout = () => {
     dispatch(logout());
-    navigate("/login", { replace: true });
+
+    navigate("/login", {
+      replace: true,
+    });
   };
 
   return (
     <aside className="sidebar">
 
-      {/* Profile */}
+
       <div className="sidebar-profile">
         <div className="sidebar-avatar">
           {user?.name?.charAt(0).toUpperCase() || "S"}
@@ -37,7 +42,6 @@ function Sidebar() {
         </p>
       </div>
 
-      {/* Navigation */}
       <nav className="sidebar-navigation">
 
         <Link
@@ -48,7 +52,13 @@ function Sidebar() {
               : "sidebar-link"
           }
         >
-          <span className="sidebar-icon">⌂</span>
+          <span className="sidebar-icon">
+            <HugeiconsIcon
+              icon={Home01Icon}
+              size={20}
+            />
+          </span>
+
           <span>Home</span>
         </Link>
 
@@ -56,24 +66,18 @@ function Sidebar() {
           to="/home"
           className={
             location.pathname === "/home"
-              ? "sidebar-link"
-              : "sidebar-link"
-          }
-        >
-          <span className="sidebar-icon">☷</span>
-          <span>Shopping Lists</span>
-        </Link>
-
-        <Link
-          to="/create-shopping-list"
-          className={
-            location.pathname === "/create-shopping-list"
               ? "sidebar-link active"
               : "sidebar-link"
           }
         >
-          <span className="sidebar-icon">+</span>
-          <span>Add List</span>
+          <span className="sidebar-icon">
+            <HugeiconsIcon
+              icon={ListViewIcon}
+              size={20}
+            />
+          </span>
+
+          <span>Shopping Lists</span>
         </Link>
 
         <Link
@@ -84,17 +88,28 @@ function Sidebar() {
               : "sidebar-link"
           }
         >
-          <span className="sidebar-icon">♙</span>
+          <span className="sidebar-icon">
+            <HugeiconsIcon
+              icon={UserIcon}
+              size={20}
+            />
+          </span>
+
           <span>Profile</span>
         </Link>
 
-        {/* Logout */}
         <button
           type="button"
           className="sidebar-link sidebar-logout"
           onClick={handleLogout}
         >
-          <span className="sidebar-icon">↪</span>
+          <span className="sidebar-icon">
+            <HugeiconsIcon
+              icon={Logout01Icon}
+              size={20}
+            />
+          </span>
+
           <span>Log Out</span>
         </button>
 
