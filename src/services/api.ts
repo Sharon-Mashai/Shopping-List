@@ -200,3 +200,44 @@ export async function deleteShoppingItem(
     );
   }
 }
+
+export async function getUser(
+  id: string,
+) {
+  const response = await fetch(
+    `${API_URL}/users/${id}`,
+  );
+
+  if (!response.ok) {
+    throw new Error(
+      "Unable to load user.",
+    );
+  }
+
+  return response.json();
+}
+
+
+export async function updateUser(
+  id: string,
+  user: object,
+) {
+  const response = await fetch(
+    `${API_URL}/users/${id}`,
+    {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(user),
+    },
+  );
+
+  if (!response.ok) {
+    throw new Error(
+      "Unable to update user.",
+    );
+  }
+
+  return response.json();
+}
