@@ -3,13 +3,13 @@
   "private": true,
   "version": "0.0.0",
   "type": "module",
-  "scripts": {
-    "dev": "concurrently \"vite\" \"json-server --watch db.json --port 3000\"",
-    "build": "vite build",
-    "lint": "eslint .",
-    "preview": "vite preview",
-    "server": "json-server --watch db.json --port 3000"
-  },
+"scripts": {
+  "dev": "concurrently \"vite\" \"json-server --watch db.json --port 3000\"",
+  "build": "vite build",
+  "lint": "eslint .",
+  "preview": "vite preview",
+  "server": "json-server --watch db.json --host 0.0.0.0 --port $PORT"
+},
   "dependencies": {
     "@hugeicons/core-free-icons": "^4.3.0",
     "@hugeicons/react": "^1.1.10",
