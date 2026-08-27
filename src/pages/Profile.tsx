@@ -1,25 +1,11 @@
 import { useState } from "react";
-import {
-  useDispatch,
-  useSelector,
-} from "react-redux";
+import { useDispatch, useSelector,} from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { HugeiconsIcon } from "@hugeicons/react";
-import {
-  Logout01Icon,
-  AlertCircleIcon,
-} from "@hugeicons/core-free-icons";
-import type {
-  AppDispatch,
-  RootState,
-} from "../store/store";
-import {
-  logout,
-  updateUser,
-} from "../store/slices/authSlice";
-import {
-  updateUser as updateUserApi,
-} from "../services/api";
+import { Logout01Icon, AlertCircleIcon,} from "@hugeicons/core-free-icons";
+import type { AppDispatch,RootState,} from "../store/store";
+import { logout, updateUser,} from "../store/slices/authSlice";
+import { updateUser as updateUserApi,} from "../services/api";
 import useToast from "../hooks/useToast";
 
 function Profile() {
@@ -35,62 +21,24 @@ function Profile() {
 
   const { showToast } = useToast();
 
-  const [
-    editing,
-    setEditing,
-  ] = useState(false);
+  const [editing,setEditing,] = useState(false);
 
-  const [
-    name,
-    setName,
-  ] = useState(
-    user?.name || "",
-  );
+  const [ name, setName,] = useState( user?.name || "",);
 
-  const [
-    surname,
-    setSurname,
-  ] = useState(
-    user?.surname || "",
-  );
+  const [ surname, setSurname ] = useState( user?.surname || "",);
 
-  const [
-    email,
-    setEmail,
-  ] = useState(
-    user?.email || "",
-  );
+  const [ email, setEmail,] = useState( user?.email || "",);
 
-  const [
-    cellNumber,
-    setCellNumber,
-  ] = useState(
-    user?.cellNumber || "",
-  );
+  const [ cellNumber, setCellNumber,] = useState( user?.cellNumber || "",);
 
-  const [
-    saving,
-    setSaving,
-  ] = useState(false);
+  const [ saving, setSaving,] = useState(false);
 
-  const [
-    error,
-    setError,
-  ] = useState<string | null>(
-    null,
-  );
+  const [ error, setError,] = useState<string | null>( null,);
 
-  const [
-    showLogoutModal,
-    setShowLogoutModal,
-  ] = useState(false);
+  const [ showLogoutModal, setShowLogoutModal,] = useState(false);
 
-  // Opens the custom logout confirmation modal
-  const handleLogout = () => {
-    setShowLogoutModal(true);
-  };
+  const handleLogout = () => { setShowLogoutModal(true);};
 
-  // Actually logs the user out after confirmation
   const confirmLogout = () => {
     dispatch(logout());
 

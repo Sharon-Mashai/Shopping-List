@@ -1,24 +1,9 @@
 import { useState } from "react";
-import {
-  Link,
-  useLocation,
-  useNavigate,
-} from "react-router-dom";
-import {
-  useDispatch,
-  useSelector,
-} from "react-redux";
+import { Link, useLocation, useNavigate,} from "react-router-dom";
+import { useDispatch, useSelector,} from "react-redux";
 import { HugeiconsIcon } from "@hugeicons/react";
-import {
-  Home01Icon,
-  UserIcon,
-  Logout01Icon,
-  AlertCircleIcon,
-} from "@hugeicons/core-free-icons";
-import type {
-  AppDispatch,
-  RootState,
-} from "../store/store";
+import { Home01Icon, UserIcon, Logout01Icon, AlertCircleIcon,} from "@hugeicons/core-free-icons";
+import type { AppDispatch, RootState,} from "../store/store";
 import { logout } from "../store/slices/authSlice";
 import useToast from "../hooks/useToast";
 
@@ -31,23 +16,13 @@ function Sidebar() {
 
   const { showToast } = useToast();
 
-  const user = useSelector(
-    (state: RootState) =>
-      state.auth.user,
-  );
+  const user = useSelector((state: RootState) =>  state.auth.user,);
 
-  const [
-    showLogoutForm,
-    setShowLogoutForm,
-  ] = useState(false);
+  const [ showLogoutForm, setShowLogoutForm,] = useState(false);
 
-  const handleLogoutClick = () => {
-    setShowLogoutForm(true);
-  };
+  const handleLogoutClick = () => { setShowLogoutForm(true);};
 
-  const handleCancelLogout = () => {
-    setShowLogoutForm(false);
-  };
+  const handleCancelLogout = () => { setShowLogoutForm(false);};
 
   const handleConfirmLogout = () => {
     dispatch(logout());

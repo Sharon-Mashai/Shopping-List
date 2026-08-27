@@ -4,8 +4,8 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite",
-    "build": "tsc -b && vite build",
+    "dev": "concurrently \"vite\" \"json-server --watch db.json --port 3000\"",
+    "build": "vite build",
     "lint": "eslint .",
     "preview": "vite preview",
     "server": "json-server --watch db.json --port 3000"
@@ -15,6 +15,7 @@
     "@hugeicons/react": "^1.1.10",
     "@reduxjs/toolkit": "^2.12.0",
     "bcryptjs": "^3.0.3",
+    "concurrently": "^10.0.5",
     "json-server": "^1.0.0-beta.15",
     "react": "^19.2.8",
     "react-dom": "^19.2.8",
