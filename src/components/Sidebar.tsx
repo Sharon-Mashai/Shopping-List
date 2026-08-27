@@ -1,28 +1,53 @@
 import { useState } from "react";
-import { Link, useLocation, useNavigate } from "react-router-dom";
-import { useDispatch, useSelector } from "react-redux";
+import {
+  Link,
+  useLocation,
+  useNavigate,
+} from "react-router-dom";
+import {
+  useDispatch,
+  useSelector,
+} from "react-redux";
 import { HugeiconsIcon } from "@hugeicons/react";
-import { Home01Icon, ListViewIcon, UserIcon, Logout01Icon,} from "@hugeicons/core-free-icons";
-import type { AppDispatch, RootState } from "../store/store";
+import {
+  Home01Icon,
+  UserIcon,
+  Logout01Icon,
+  AlertCircleIcon,
+} from "@hugeicons/core-free-icons";
+import type {
+  AppDispatch,
+  RootState,
+} from "../store/store";
 import { logout } from "../store/slices/authSlice";
 import useToast from "../hooks/useToast";
 
 function Sidebar() {
   const location = useLocation();
+
   const navigate = useNavigate();
+
   const dispatch = useDispatch<AppDispatch>();
 
   const { showToast } = useToast();
 
   const user = useSelector(
-    (state: RootState) => state.auth.user,
+    (state: RootState) =>
+      state.auth.user,
   );
 
-  const [showLogoutForm, setShowLogoutForm] =useState(false);
+  const [
+    showLogoutForm,
+    setShowLogoutForm,
+  ] = useState(false);
 
-  const handleLogoutClick = () => {setShowLogoutForm(true);};
+  const handleLogoutClick = () => {
+    setShowLogoutForm(true);
+  };
 
-  const handleCancelLogout = () => {setShowLogoutForm(false);};
+  const handleCancelLogout = () => {
+    setShowLogoutForm(false);
+  };
 
   const handleConfirmLogout = () => {
     dispatch(logout());
@@ -44,8 +69,11 @@ function Sidebar() {
       <aside className="sidebar">
 
         <div className="sidebar-profile">
+
           <div className="sidebar-avatar">
-            {user?.name?.charAt(0).toUpperCase() || "S"}
+            {user?.name
+              ?.charAt(0)
+              .toUpperCase() || "S"}
           </div>
 
           <h2>
@@ -57,6 +85,7 @@ function Sidebar() {
           <p>
             {user?.email || ""}
           </p>
+
         </div>
 
         <nav className="sidebar-navigation">
@@ -70,31 +99,18 @@ function Sidebar() {
             }
           >
             <span className="sidebar-icon">
+
               <HugeiconsIcon
                 icon={Home01Icon}
                 size={20}
               />
+
             </span>
 
-            <span>Home</span>
-          </Link>
-
-          <Link
-            to="/home"
-            className={
-              location.pathname === "/home"
-                ? "sidebar-link active"
-                : "sidebar-link"
-            }
-          >
-            <span className="sidebar-icon">
-              <HugeiconsIcon
-                icon={ListViewIcon}
-                size={20}
-              />
+            <span>
+              Home
             </span>
 
-            <span>Shopping Lists</span>
           </Link>
 
           <Link
@@ -106,13 +122,18 @@ function Sidebar() {
             }
           >
             <span className="sidebar-icon">
+
               <HugeiconsIcon
                 icon={UserIcon}
                 size={20}
               />
+
             </span>
 
-            <span>Profile</span>
+            <span>
+              Profile
+            </span>
+
           </Link>
 
           <button
@@ -121,13 +142,18 @@ function Sidebar() {
             onClick={handleLogoutClick}
           >
             <span className="sidebar-icon">
+
               <HugeiconsIcon
                 icon={Logout01Icon}
                 size={20}
               />
+
             </span>
 
-            <span>Log Out</span>
+            <span>
+              Log Out
+            </span>
+
           </button>
 
         </nav>
@@ -135,37 +161,51 @@ function Sidebar() {
       </aside>
 
       {showLogoutForm && (
-        <div className="modal-overlay">
+        <div
+          className="modal-overlay"
+          onClick={handleCancelLogout}
+        >
 
           <section
-            className="confirmation-modal"
+            className="delete-modal"
             role="dialog"
             aria-modal="true"
-            aria-labelledby="logout-title"
+            aria-labelledby="logout-modal-title"
+            onClick={(event) =>
+              event.stopPropagation()
+            }
           >
 
-            <div className="confirmation-modal-header">
+            <div className="delete-modal-icon">
 
-              <div className="confirmation-modal-icon">
-                <HugeiconsIcon
-                  icon={Logout01Icon}
-                  size={24}
-                />
-              </div>
-
-              <div>
-                <h2 id="logout-title">
-                  Log Out
-                </h2>
-
-                <p>
-                  Are you sure you want to log out?
-                </p>
-              </div>
+              <HugeiconsIcon
+                icon={AlertCircleIcon}
+                size={28}
+              />
 
             </div>
 
-            <div className="confirmation-modal-actions">
+            <div className="delete-modal-content">
+
+              <h2 id="logout-modal-title">
+                Log Out?
+              </h2>
+
+              <p>
+                Are you sure you
+                want to log out of
+                your account?
+              </p>
+
+              <span>
+                You will need to sign
+                in again to access
+                your shopping lists.
+              </span>
+
+            </div>
+
+            <div className="delete-modal-actions">
 
               <button
                 type="button"
@@ -180,7 +220,15 @@ function Sidebar() {
                 className="button button-danger"
                 onClick={handleConfirmLogout}
               >
-                Log Out
+                <HugeiconsIcon
+                  icon={Logout01Icon}
+                  size={18}
+                />
+
+                <span>
+                  Log Out
+                </span>
+
               </button>
 
             </div>

@@ -21,14 +21,11 @@ function UpdateCredentials() {
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
 
-  const [currentPasswordError, setCurrentPasswordError] =
-    useState("");
+  const [currentPasswordError, setCurrentPasswordError] = useState("");
 
-  const [newPasswordError, setNewPasswordError] =
-    useState("");
+  const [newPasswordError, setNewPasswordError] = useState("");
 
-  const [confirmPasswordError, setConfirmPasswordError] =
-    useState("");
+  const [confirmPasswordError, setConfirmPasswordError] = useState("");
 
   const [saving, setSaving] = useState(false);
 
@@ -49,7 +46,7 @@ function UpdateCredentials() {
 
     if (!currentPassword.trim()) {
       setCurrentPasswordError(
-        "Please enter your current password.",
+        "Current password required.",
       );
 
       hasError = true;
@@ -57,7 +54,7 @@ function UpdateCredentials() {
 
     if (!newPassword.trim()) {
       setNewPasswordError(
-        "Please enter your new password.",
+        "New password required.",
       );
 
       hasError = true;
@@ -65,7 +62,7 @@ function UpdateCredentials() {
 
     if (!confirmPassword.trim()) {
       setConfirmPasswordError(
-        "Please confirm your new password.",
+        "Confirm your new password.",
       );
 
       hasError = true;

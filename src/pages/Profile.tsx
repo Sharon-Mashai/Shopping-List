@@ -1,55 +1,109 @@
 import { useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
+import {
+  useDispatch,
+  useSelector,
+} from "react-redux";
 import { useNavigate } from "react-router-dom";
-import type { AppDispatch, RootState } from "../store/store";
-import { logout, updateUser } from "../store/slices/authSlice";
-import { updateUser as updateUserApi } from "../services/api";
+import { HugeiconsIcon } from "@hugeicons/react";
+import {
+  Logout01Icon,
+  AlertCircleIcon,
+} from "@hugeicons/core-free-icons";
+import type {
+  AppDispatch,
+  RootState,
+} from "../store/store";
+import {
+  logout,
+  updateUser,
+} from "../store/slices/authSlice";
+import {
+  updateUser as updateUserApi,
+} from "../services/api";
+import useToast from "../hooks/useToast";
 
 function Profile() {
-  const dispatch = useDispatch<AppDispatch>();
+  const dispatch =
+    useDispatch<AppDispatch>();
 
   const navigate = useNavigate();
 
   const user = useSelector(
-    (state: RootState) => state.auth.user,
+    (state: RootState) =>
+      state.auth.user,
   );
 
-  const [editing, setEditing] = useState(false);
+  const { showToast } = useToast();
 
-  const [name, setName] = useState(
+  const [
+    editing,
+    setEditing,
+  ] = useState(false);
+
+  const [
+    name,
+    setName,
+  ] = useState(
     user?.name || "",
   );
 
-  const [surname, setSurname] = useState(
+  const [
+    surname,
+    setSurname,
+  ] = useState(
     user?.surname || "",
   );
 
-  const [email, setEmail] = useState(
+  const [
+    email,
+    setEmail,
+  ] = useState(
     user?.email || "",
   );
 
-  const [cellNumber, setCellNumber] = useState(
+  const [
+    cellNumber,
+    setCellNumber,
+  ] = useState(
     user?.cellNumber || "",
   );
 
-  const [saving, setSaving] = useState(false);
+  const [
+    saving,
+    setSaving,
+  ] = useState(false);
 
-  const [error, setError] = useState<string | null>(
+  const [
+    error,
+    setError,
+  ] = useState<string | null>(
     null,
   );
 
+  const [
+    showLogoutModal,
+    setShowLogoutModal,
+  ] = useState(false);
+
+  // Opens the custom logout confirmation modal
   const handleLogout = () => {
-    const confirmed = window.confirm(
-      "Are you sure you want to log out?",
-    );
+    setShowLogoutModal(true);
+  };
 
-    if (!confirmed) {
-      return;
-    }
-
+  // Actually logs the user out after confirmation
+  const confirmLogout = () => {
     dispatch(logout());
 
-    navigate("/login");
+    setShowLogoutModal(false);
+
+    showToast(
+      "You have been logged out successfully.",
+      "success",
+    );
+
+    navigate("/login", {
+      replace: true,
+    });
   };
 
   const handleEdit = () => {
@@ -63,6 +117,7 @@ function Profile() {
     setCellNumber(user.cellNumber);
 
     setError(null);
+
     setEditing(true);
   };
 
@@ -77,6 +132,7 @@ function Profile() {
     setCellNumber(user.cellNumber);
 
     setError(null);
+
     setEditing(false);
   };
 
@@ -131,7 +187,8 @@ function Profile() {
 
         email: email.trim(),
 
-        cellNumber: cellNumber.trim(),
+        cellNumber:
+          cellNumber.trim(),
       };
 
       const savedUser =
@@ -146,9 +203,21 @@ function Profile() {
 
       setEditing(false);
 
-    } catch {
-      setError(
-        "Unable to update your profile.",
+      showToast(
+        "Profile updated successfully.",
+        "success",
+      );
+    } catch (error) {
+      console.error(error);
+
+      const message =
+        "Unable to update your profile.";
+
+      setError(message);
+
+      showToast(
+        message,
+        "error",
       );
     } finally {
       setSaving(false);
@@ -295,7 +364,9 @@ function Profile() {
                 type="button"
                 className="button button-secondary"
                 onClick={() =>
-                  navigate("/update-credentials")
+                  navigate(
+                    "/update-credentials",
+                  )
                 }
               >
                 Update Password
@@ -306,7 +377,14 @@ function Profile() {
                 className="button button-danger"
                 onClick={handleLogout}
               >
-                Log Out
+                <HugeiconsIcon
+                  icon={Logout01Icon}
+                  size={18}
+                />
+
+                <span>
+                  Log Out
+                </span>
               </button>
 
             </div>
@@ -425,6 +503,91 @@ function Profile() {
             </div>
 
           </form>
+        )}
+
+        {/* Logout Confirmation Modal */}
+        {showLogoutModal && (
+          <div
+            className="modal-overlay"
+            onClick={() => {
+              if (!saving) {
+                setShowLogoutModal(false);
+              }
+            }}
+          >
+            <section
+              className="delete-modal"
+              role="dialog"
+              aria-modal="true"
+              aria-labelledby="logout-modal-title"
+              onClick={(event) =>
+                event.stopPropagation()
+              }
+            >
+
+              <div className="delete-modal-icon">
+
+                <HugeiconsIcon
+                  icon={AlertCircleIcon}
+                  size={28}
+                />
+
+              </div>
+
+              <div className="delete-modal-content">
+
+                <h2 id="logout-modal-title">
+                  Log Out?
+                </h2>
+
+                <p>
+                  Are you sure you
+                  want to log out of
+                  your account?
+                </p>
+
+                <span>
+                  You will need to sign
+                  in again to access
+                  your shopping lists.
+                </span>
+
+              </div>
+
+              <div className="delete-modal-actions">
+
+                <button
+                  type="button"
+                  className="button button-secondary"
+                  onClick={() =>
+                    setShowLogoutModal(false)
+                  }
+                >
+                  Cancel
+                </button>
+
+                <button
+                  type="button"
+                  className="button button-danger"
+                  onClick={
+                    confirmLogout
+                  }
+                >
+                  <HugeiconsIcon
+                    icon={Logout01Icon}
+                    size={18}
+                  />
+
+                  <span>
+                    Log Out
+                  </span>
+
+                </button>
+
+              </div>
+
+            </section>
+          </div>
         )}
 
       </section>
