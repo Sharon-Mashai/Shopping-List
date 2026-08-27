@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route, Navigate,} from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Home from "./pages/Home";
@@ -10,32 +10,22 @@ import CreateShoppingList from "./pages/CreateShoppingList";
 import EditShoppingList from "./pages/EditShoppingList";
 import DashboardLayout from "./components/DashboardLayout";
 import ToastProvider from "./components/ToastProvider";
+import UpdateCredentials from "./pages/UpdateCredentials";
 
 function App() {
   return (
     <ToastProvider>
       <BrowserRouter>
         <Routes>
-
           <Route element={<PublicRoute />}>
-            <Route
-              path="/login"
-              element={<Login />}
-            />
+            <Route path="/login" element={<Login />} />
 
-            <Route
-              path="/register"
-              element={<Register />}
-            />
+            <Route path="/register" element={<Register />} />
           </Route>
 
           <Route element={<ProtectedRoute />}>
             <Route element={<DashboardLayout />}>
-
-              <Route
-                path="/home"
-                element={<Home />}
-              />
+              <Route path="/home" element={<Home />} />
 
               <Route
                 path="/create-shopping-list"
@@ -47,39 +37,19 @@ function App() {
                 element={<EditShoppingList />}
               />
 
-              <Route
-                path="/shopping-list/:id"
-                element={<ShoppingList />}
-              />
+              <Route path="/shopping-list/:id" element={<ShoppingList />} />
 
+              <Route path="/profile" element={<Profile />} />
               <Route
-                path="/profile"
-                element={<Profile />}
+                path="/update-credentials"
+                element={<UpdateCredentials />}
               />
-
             </Route>
           </Route>
 
-          <Route
-            path="/"
-            element={
-              <Navigate
-                to="/login"
-                replace
-              />
-            }
-          />
+          <Route path="/" element={<Navigate to="/login" replace />} />
 
-          <Route
-            path="*"
-            element={
-              <Navigate
-                to="/home"
-                replace
-              />
-            }
-          />
-
+          <Route path="*" element={<Navigate to="/home" replace />} />
         </Routes>
       </BrowserRouter>
     </ToastProvider>

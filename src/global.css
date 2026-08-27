@@ -1901,3 +1901,21 @@ ul {
     width: 100%;
   }
 }
+
+.field-error {
+  margin: 6px 0 0;
+  color: #dc2626;
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 1.4;
+}
+
+.input-error {
+  border-color: #dc2626 !important;
+}
+
+.input-error:focus {
+  border-color: #dc2626 !important;
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(220, 38, 38, 0.1);
+}
