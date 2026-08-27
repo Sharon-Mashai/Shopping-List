@@ -29,6 +29,36 @@
       "photographerName": "Tara Clark",
       "photographerProfileUrl": "https://unsplash.com/@socialtyvr",
       "id": "u1wmB4kG338"
+    },
+    {
+      "userId": "CsIFrf2mQvo",
+      "name": "Weekly Groceries",
+      "category": "Groceries",
+      "notes": "",
+      "createdAt": "2026-08-27T16:09:15.307Z",
+      "imageUrl": "https://images.unsplash.com/photo-1628102491629-778571d893a3?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3wxMDQ0MDc4fDB8MXxzZWFyY2h8MXx8V2Vla2x5JTIwR3JvY2VyaWVzJTIwR3JvY2VyaWVzfGVufDB8Mnx8fDE3ODc4NDY5NTV8MA&ixlib=rb-4.1.0&q=80&w=400",
+      "unsplashPhotoId": "Gk8LG7dsHWA",
+      "photographerName": "Tara Clark",
+      "photographerProfileUrl": "https://unsplash.com/@socialtyvr",
+      "id": "QXabvBhbyuU",
+      "sharedWith": [
+        "mashaisharow@gmail.com"
+      ]
+    },
+    {
+      "userId": "CsIFrf2mQvo",
+      "name": "Clothing",
+      "category": "clothes",
+      "notes": "",
+      "createdAt": "2026-08-27T16:09:47.476Z",
+      "imageUrl": "https://images.unsplash.com/photo-1604176354204-9268737828e4?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3wxMDQ0MDc4fDB8MXxzZWFyY2h8MXx8Q2xvdGhpbmclMjBjbG90aGVzfGVufDB8Mnx8fDE3ODc4NDY5ODd8MA&ixlib=rb-4.1.0&q=80&w=400",
+      "unsplashPhotoId": "EDSTj4kCUcw",
+      "photographerName": "Maude Frédérique Lavoie",
+      "photographerProfileUrl": "https://unsplash.com/@maudefl",
+      "id": "12y5Yc4NWUQ",
+      "sharedWith": [
+        "mashaisharow@gmail.com"
+      ]
     }
   ],
   "shoppingItems": [
@@ -70,6 +100,58 @@
       "photographerName": "Alana Harris",
       "photographerProfileUrl": "https://unsplash.com/@alanaharris",
       "id": "2en2cms7AfQ"
+    },
+    {
+      "listId": "u1wmB4kG338",
+      "name": "milk",
+      "quantity": 1,
+      "category": "Dairy",
+      "completed": false,
+      "createdAt": "2026-08-27T16:08:10.454Z",
+      "imageUrl": "https://images.unsplash.com/photo-1523473827533-2a64d0d36748?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3wxMDQ0MDc4fDB8MXxzZWFyY2h8MXx8bWlsa3xlbnwwfDJ8fHwxNzg3ODQ2ODkwfDA&ixlib=rb-4.1.0&q=80&w=400",
+      "unsplashPhotoId": "P7MkoYvSnLI",
+      "photographerName": "Mehrshad Rajabi",
+      "photographerProfileUrl": "https://unsplash.com/@mehrshadr",
+      "id": "R1rrODGyGzk"
+    },
+    {
+      "listId": "u1wmB4kG338",
+      "name": "Yogurt",
+      "quantity": 1,
+      "category": "Dairy",
+      "completed": false,
+      "createdAt": "2026-08-27T16:08:27.039Z",
+      "imageUrl": "https://images.unsplash.com/photo-1709372026846-8d2fda4a7ee5?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3wxMDQ0MDc4fDB8MXxzZWFyY2h8MXx8WW9ndXJ0fGVufDB8Mnx8fDE3ODc4NDY5MDd8MA&ixlib=rb-4.1.0&q=80&w=400",
+      "unsplashPhotoId": "NAMj7VRvUe8",
+      "photographerName": "Min Square_97",
+      "photographerProfileUrl": "https://unsplash.com/@min_square97",
+      "id": "u54fFnB4QCI"
+    },
+    {
+      "listId": "u1wmB4kG338",
+      "name": "Apples",
+      "quantity": 1,
+      "category": "Fruits",
+      "completed": false,
+      "createdAt": "2026-08-27T16:08:41.391Z",
+      "imageUrl": "https://images.unsplash.com/photo-1590005354167-6da97870c757?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3wxMDQ0MDc4fDB8MXxzZWFyY2h8MXx8QXBwbGVzfGVufDB8Mnx8fDE3ODc4NDY5MjF8MA&ixlib=rb-4.1.0&q=80&w=400",
+      "unsplashPhotoId": "oo3kSFZ7uHk",
+      "photographerName": "Estúdio Bloom",
+      "photographerProfileUrl": "https://unsplash.com/@estudiobloom",
+      "id": "D-o5aZHec4Y"
+    },
+    {
+      "listId": "12y5Yc4NWUQ",
+      "name": "Dresses",
+      "quantity": 1,
+      "category": "Clothing",
+      "completed": false,
+      "createdAt": "2026-08-27T16:12:23.264Z",
+      "imageUrl": "https://images.unsplash.com/photo-1717127251642-869277aa5929?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3wxMDQ0MDc4fDB8MXxzZWFyY2h8MXx8RHJlc3Nlc3xlbnwwfDJ8fHwxNzg3ODQ3MTQzfDA&ixlib=rb-4.1.0&q=80&w=400",
+      "unsplashPhotoId": "iOO2yGA826s",
+      "photographerName": "TuanAnh Blue",
+      "photographerProfileUrl": "https://unsplash.com/@blueeyeaa",
+      "id": "BqgkneJQg80"
     }
   ],
   "items": [
@@ -92,5 +174,6 @@
       "id": "7lRHPd4t5Vk"
     }
   ],
+  "sharedLists": [],
   "$schema": "./node_modules/json-server/schema.json"
 }

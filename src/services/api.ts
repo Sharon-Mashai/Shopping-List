@@ -252,3 +252,120 @@ export async function updateUser(
 
   return response.json();
 }
+
+
+
+export async function createSharedShoppingList(
+  sharedList: object,
+) {
+  const response = await fetch(
+    `${API_URL}/sharedLists`,
+    {
+      method: "POST",
+
+      headers: {
+        "Content-Type": "application/json",
+      },
+
+      body: JSON.stringify(sharedList),
+    },
+  );
+
+  if (!response.ok) {
+    throw new Error(
+      "Unable to share shopping list.",
+    );
+  }
+
+  return response.json();
+}
+
+
+export async function deleteSharedShoppingList(
+  id: string,
+) {
+  const response = await fetch(
+    `${API_URL}/sharedLists/${id}`,
+    {
+      method: "DELETE",
+    },
+  );
+
+  if (!response.ok) {
+    throw new Error(
+      "Unable to remove shared shopping list.",
+    );
+  }
+}
+
+
+export async function getUserByEmail(
+  email: string,
+) {
+  const response = await fetch(
+    `${API_URL}/users?email=${encodeURIComponent(
+      email,
+    )}`,
+  );
+
+  if (!response.ok) {
+    throw new Error(
+      "Unable to find user.",
+    );
+  }
+
+  return response.json();
+}
+export async function updateSharedShoppingList(
+  id: string,
+  sharedWith: string[],
+) {
+  const response = await fetch(
+    `${API_URL}/shoppingLists/${id}`,
+    {
+      method: "PATCH",
+
+      headers: {
+        "Content-Type": "application/json",
+      },
+
+      body: JSON.stringify({
+        sharedWith,
+      }),
+    },
+  );
+
+  if (!response.ok) {
+    throw new Error(
+      "Unable to update shared shopping list.",
+    );
+  }
+
+  return response.json();
+}
+export async function getSharedShoppingLists(
+  email: string,
+) {
+  const response = await fetch(
+    `${API_URL}/shoppingLists`,
+  );
+
+  if (!response.ok) {
+    throw new Error(
+      "Unable to load shared shopping lists.",
+    );
+  }
+
+  const lists = await response.json();
+
+  return lists.filter(
+    (list: {
+      sharedWith?: string[];
+    }) =>
+      list.sharedWith?.some(
+        (sharedEmail) =>
+          sharedEmail.toLowerCase() ===
+          email.toLowerCase(),
+      ),
+  );
+}
