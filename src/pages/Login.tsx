@@ -19,17 +19,20 @@ function Login() {
   ) => {
     event.preventDefault();
 
-    if (!email || !password) {
+    if (!email.trim() || !password) {
       showToast(
         "Please enter your email and password.",
         "warning",
       );
+
       return;
     }
 
     try {
       const response = await fetch(
-        `http://localhost:3000/users?email=${encodeURIComponent(email)}`,
+        `http://localhost:3000/users?email=${encodeURIComponent(
+          email.trim(),
+        )}`,
       );
 
       if (!response.ok) {
@@ -45,6 +48,7 @@ function Login() {
           "Invalid email or password.",
           "error",
         );
+
         return;
       }
 
@@ -61,6 +65,7 @@ function Login() {
           "Invalid email or password.",
           "error",
         );
+
         return;
       }
 
@@ -93,63 +98,83 @@ function Login() {
   return (
     <main className="auth-page">
       <section className="auth-card">
+
         <div className="auth-header">
-          <h1>Welcome Back!</h1>
+          <h1>
+            Welcome Back!
+          </h1>
 
           <p>
             Sign in to manage your shopping lists.
           </p>
         </div>
 
-        <form onSubmit={handleLogin}>
+        <form
+          onSubmit={handleLogin}
+          autoComplete="off"
+        >
+
           <div className="form-group">
+
             <label htmlFor="email">
               Email
             </label>
 
             <input
               id="email"
+              name="login-email"
               type="email"
               value={email}
               onChange={(event) =>
                 setEmail(event.target.value)
               }
               placeholder="Enter your email"
+              autoComplete="off"
             />
+
           </div>
 
           <div className="form-group">
+
             <label htmlFor="password">
               Password
             </label>
 
             <input
               id="password"
+              name="login-password"
               type="password"
               value={password}
               onChange={(event) =>
                 setPassword(event.target.value)
               }
               placeholder="Enter your password"
+              autoComplete="new-password"
             />
+
           </div>
 
           <div>
+
             <button
               type="submit"
               className="button button-primary"
             >
               Sign In
             </button>
+
           </div>
+
         </form>
 
         <p className="auth-footer">
           Don't have an account?{" "}
+
           <Link to="/register">
             Create an account
           </Link>
         </p>
+
       </section>
     </main>
   );
