@@ -1,7 +1,7 @@
 {
   "users": [
     {
-      "name": "Sharow",
+      "name": "Sharon",
       "surname": "Mashai",
       "email": "mashaisharow@gmail.com",
       "cellNumber": "0769336601",
@@ -12,27 +12,15 @@
   "shoppingLists": [
     {
       "userId": "00Goc3_xfi4",
-      "name": "Montly Groceries",
+      "name": "Monthly Grocery",
       "category": "Groceries",
       "notes": "",
       "createdAt": "2026-08-26T13:25:43.343Z",
-      "imageUrl": "https://images.unsplash.com/photo-1628102491629-778571d893a3?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3wxMDQ0MDc4fDB8MXxzZWFyY2h8MXx8TW9udGx5JTIwR3JvY2VyaWVzJTIwR3JvY2VyaWVzfGVufDB8Mnx8fDE3ODc3NTA3NDN8MA&ixlib=rb-4.1.0&q=80&w=400",
+      "imageUrl": "https://images.unsplash.com/photo-1628102491629-778571d893a3?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3wxMDQ0MDc4fDB8MXxzZWFyY2h8MXx8TW9udGhseSUyMEdyb2NlcnklMjBHcm9jZXJpZXN8ZW58MHwyfHx8MTc4Nzc3NzQyOXww&ixlib=rb-4.1.0&q=80&w=400",
       "unsplashPhotoId": "Gk8LG7dsHWA",
       "photographerName": "Tara Clark",
       "photographerProfileUrl": "https://unsplash.com/@socialtyvr",
       "id": "u1wmB4kG338"
-    },
-    {
-      "userId": "00Goc3_xfi4",
-      "name": "Shoes",
-      "category": "Clothing",
-      "notes": "",
-      "createdAt": "2026-08-26T19:06:49.074Z",
-      "imageUrl": "https://images.unsplash.com/photo-1550998358-08b4f83dc345?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3wxMDQ0MDc4fDB8MXxzZWFyY2h8MXx8U2hvZXMlMjBDbG90aGluZ3xlbnwwfDJ8fHwxNzg3NzcxMjEwfDA&ixlib=rb-4.1.0&q=80&w=400",
-      "unsplashPhotoId": "4lf8mVuZESQ",
-      "photographerName": "LoboStudio Hamburg",
-      "photographerProfileUrl": "https://unsplash.com/@lobostudiohamburg",
-      "id": "jP5VedzVpcA"
     }
   ],
   "shoppingItems": [
@@ -74,19 +62,6 @@
       "photographerName": "Alana Harris",
       "photographerProfileUrl": "https://unsplash.com/@alanaharris",
       "id": "2en2cms7AfQ"
-    },
-    {
-      "listId": "jP5VedzVpcA",
-      "name": "Puma shoe",
-      "quantity": 1,
-      "category": "shoes",
-      "completed": false,
-      "createdAt": "2026-08-26T19:20:30.591Z",
-      "imageUrl": "https://images.unsplash.com/photo-1715609104583-f627752d2bbb?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3wxMDQ0MDc4fDB8MXxzZWFyY2h8MXx8UHVtYSUyMHNob2V8ZW58MHwyfHx8MTc4Nzc3MjAzMXww&ixlib=rb-4.1.0&q=80&w=400",
-      "unsplashPhotoId": "h3mrCftEbAc",
-      "photographerName": "Zakaria Issaad",
-      "photographerProfileUrl": "https://unsplash.com/@alpha_photographer",
-      "id": "reWYJX7hZ88"
     }
   ],
   "items": [

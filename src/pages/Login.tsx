@@ -4,18 +4,26 @@ import { Link, useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import type { AppDispatch } from "../store/store";
 import { login } from "../store/slices/authSlice";
+import useToast from "../hooks/useToast";
 
 function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+
   const dispatch = useDispatch<AppDispatch>();
   const navigate = useNavigate();
+  const { showToast } = useToast();
 
-  const handleLogin = async (event: React.FormEvent) => {
+  const handleLogin = async (
+    event: React.FormEvent,
+  ) => {
     event.preventDefault();
 
     if (!email || !password) {
-      alert("Please enter your email and password.");
+      showToast(
+        "Please enter your email and password.",
+        "warning",
+      );
       return;
     }
 
@@ -25,22 +33,34 @@ function Login() {
       );
 
       if (!response.ok) {
-        throw new Error("Unable to connect to the server.");
+        throw new Error(
+          "Unable to connect to the server.",
+        );
       }
 
       const users = await response.json();
 
       if (users.length === 0) {
-        alert("Invalid email or password.");
+        showToast(
+          "Invalid email or password.",
+          "error",
+        );
         return;
       }
 
       const user = users[0];
 
-      const passwordMatches = await bcrypt.compare(password, user.password);
+      const passwordMatches =
+        await bcrypt.compare(
+          password,
+          user.password,
+        );
 
       if (!passwordMatches) {
-        alert("Invalid email or password.");
+        showToast(
+          "Invalid email or password.",
+          "error",
+        );
         return;
       }
 
@@ -54,13 +74,19 @@ function Login() {
         }),
       );
 
-      alert(`Welcome back, ${user.name}!`);
+      showToast(
+        `Welcome back, ${user.name}!`,
+        "success",
+      );
 
       navigate("/home");
-    }
-     catch (error) {
+    } catch (error) {
       console.error(error);
-      alert("Something went wrong. Please try again.");
+
+      showToast(
+        "Something went wrong. Please try again.",
+        "error",
+      );
     }
   };
 
@@ -69,44 +95,60 @@ function Login() {
       <section className="auth-card">
         <div className="auth-header">
           <h1>Welcome Back!</h1>
-          <p>Sign in to manage your shopping lists.</p>
+
+          <p>
+            Sign in to manage your shopping lists.
+          </p>
         </div>
 
         <form onSubmit={handleLogin}>
           <div className="form-group">
-            <label htmlFor="email">Email</label>
+            <label htmlFor="email">
+              Email
+            </label>
 
             <input
               id="email"
               type="email"
               value={email}
-              onChange={(event) => setEmail(event.target.value)}
+              onChange={(event) =>
+                setEmail(event.target.value)
+              }
               placeholder="Enter your email"
             />
           </div>
 
           <div className="form-group">
-            <label htmlFor="password">Password</label>
+            <label htmlFor="password">
+              Password
+            </label>
 
             <input
               id="password"
               type="password"
               value={password}
-              onChange={(event) => setPassword(event.target.value)}
+              onChange={(event) =>
+                setPassword(event.target.value)
+              }
               placeholder="Enter your password"
             />
           </div>
 
           <div>
-            {" "}
-            <button type="submit" className="button button-primary">
+            <button
+              type="submit"
+              className="button button-primary"
+            >
               Sign In
             </button>
           </div>
         </form>
 
         <p className="auth-footer">
-          Don't have an account? <Link to="/register">Create an account</Link>
+          Don't have an account?{" "}
+          <Link to="/register">
+            Create an account
+          </Link>
         </p>
       </section>
     </main>

@@ -1,4 +1,4 @@
-import {BrowserRouter,Routes,Route,Navigate,} from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate,} from "react-router-dom";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Home from "./pages/Home";
@@ -9,78 +9,80 @@ import PublicRoute from "./components/PublicRoute";
 import CreateShoppingList from "./pages/CreateShoppingList";
 import EditShoppingList from "./pages/EditShoppingList";
 import DashboardLayout from "./components/DashboardLayout";
+import ToastProvider from "./components/ToastProvider";
 
 function App() {
   return (
-    <BrowserRouter>
-      <Routes>
+    <ToastProvider>
+      <BrowserRouter>
+        <Routes>
 
-    
-        <Route element={<PublicRoute />}>
-          <Route
-            path="/login"
-            element={<Login />}
-          />
-
-          <Route
-            path="/register"
-            element={<Register />}
-          />
-        </Route>
-
-        <Route element={<ProtectedRoute />}>
-          <Route element={<DashboardLayout />}>
-
+          <Route element={<PublicRoute />}>
             <Route
-              path="/home"
-              element={<Home />}
+              path="/login"
+              element={<Login />}
             />
 
             <Route
-              path="/create-shopping-list"
-              element={<CreateShoppingList />}
+              path="/register"
+              element={<Register />}
             />
-
-            <Route
-              path="/edit-shopping-list/:id"
-              element={<EditShoppingList />}
-            />
-
-            <Route
-              path="/shopping-list/:id"
-              element={<ShoppingList />}
-            />
-
-            <Route
-              path="/profile"
-              element={<Profile />}
-            />
-
           </Route>
-        </Route>
 
-        <Route
-          path="/"
-          element={
-            <Navigate
-              to="/login"
-              replace
-            />
-          }
-        />
+          <Route element={<ProtectedRoute />}>
+            <Route element={<DashboardLayout />}>
 
-        <Route
-          path="*"
-          element={
-            <Navigate
-              to="/home"
-              replace
-            />
-          }
-        />
+              <Route
+                path="/home"
+                element={<Home />}
+              />
 
-      </Routes>
-    </BrowserRouter>
+              <Route
+                path="/create-shopping-list"
+                element={<CreateShoppingList />}
+              />
+
+              <Route
+                path="/edit-shopping-list/:id"
+                element={<EditShoppingList />}
+              />
+
+              <Route
+                path="/shopping-list/:id"
+                element={<ShoppingList />}
+              />
+
+              <Route
+                path="/profile"
+                element={<Profile />}
+              />
+
+            </Route>
+          </Route>
+
+          <Route
+            path="/"
+            element={
+              <Navigate
+                to="/login"
+                replace
+              />
+            }
+          />
+
+          <Route
+            path="*"
+            element={
+              <Navigate
+                to="/home"
+                replace
+              />
+            }
+          />
+
+        </Routes>
+      </BrowserRouter>
+    </ToastProvider>
   );
 }
 

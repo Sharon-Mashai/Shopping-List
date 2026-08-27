@@ -1,31 +1,50 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
+import { HugeiconsIcon } from "@hugeicons/react";
+import { AlertCircleIcon,} from "@hugeicons/core-free-icons";
 import type { AppDispatch, RootState } from "../store/store";
-import type { ShoppingItem, ShoppingList as ShoppingListType } from "../types";
-import {setItems,addItem,updateItem,deleteItem,setItemLoading,setItemError,} from "../store/slices/ShoppingItemsSlice";
-import {getShoppingList,getShoppingItems,createShoppingItem,updateShoppingItem, deleteShoppingItem,} from "../services/api";
+import type { ShoppingItem, ShoppingList as ShoppingListType,} from "../types";
+import { setItems, addItem, updateItem, deleteItem, setItemLoading, setItemError, } from "../store/slices/ShoppingItemsSlice";
+import { getShoppingList, getShoppingItems, createShoppingItem, updateShoppingItem, deleteShoppingItem, } from "../services/api";
 import { searchUnsplashImage } from "../services/unsplash";
+
+type FieldErrors = {
+  itemName?: string;
+  quantity?: string;
+  category?: string;
+};
 
 function ShoppingList() {
   const { id } = useParams<{ id: string }>();
+
   const dispatch = useDispatch<AppDispatch>();
-  const user = useSelector((state: RootState) => state.auth.user);
-  const { items, loading, error } = useSelector(
-    (state: RootState) => state.shoppingItems,
-  );
-  const [shoppingList, setShoppingList] = useState<ShoppingListType | null>(
-    null,
-  );
+
+  const user = useSelector((state: RootState) => state.auth.user,);
+
+  const { items, loading, error } = useSelector((state: RootState) => state.shoppingItems, );
+
+  const [shoppingList, setShoppingList] = useState<ShoppingListType | null>(null);
+
   const [listLoading, setListLoading] = useState(true);
+
   const [listError, setListError] = useState<string | null>(null);
+
   const [itemName, setItemName] = useState("");
+
   const [quantity, setQuantity] = useState(1);
+
   const [category, setCategory] = useState("");
+
   const [editingItemId, setEditingItemId] = useState<string | null>(null);
+
   const [searchTerm, setSearchTerm] = useState("");
+
   const [sortOption, setSortOption] = useState("newest");
+
   const [imageLoading, setImageLoading] = useState(false);
+
+  const [fieldErrors, setFieldErrors] = useState<FieldErrors>({});
 
   useEffect(() => {
     async function loadData() {
@@ -34,31 +53,43 @@ function ShoppingList() {
         setListError(null);
 
         dispatch(setItemLoading(true));
-
         dispatch(setItemError(null));
 
         if (!id || !user) {
-          setListError("Shopping list could not be found.");
+          setListError(
+            "Shopping list could not be found.",
+          );
 
           return;
         }
 
-        const list = await getShoppingList(id);
+        const list =
+          await getShoppingList(id);
 
         if (list.userId !== user.id) {
-          setListError("You do not have access to this shopping list.");
+          setListError(
+            "You do not have access to this shopping list.",
+          );
+
           return;
         }
 
         setShoppingList(list);
 
-        const shoppingItems = await getShoppingItems(id);
+        const shoppingItems =
+          await getShoppingItems(id);
 
         dispatch(setItems(shoppingItems));
       } catch {
-        setListError("Unable to load the shopping list.");
+        setListError(
+          "Unable to load the shopping list.",
+        );
 
-        dispatch(setItemError("Unable to load shopping items."));
+        dispatch(
+          setItemError(
+            "Unable to load shopping items.",
+          ),
+        );
       } finally {
         setListLoading(false);
 
@@ -69,27 +100,58 @@ function ShoppingList() {
     loadData();
   }, [id, user, dispatch]);
 
-  const handleSubmitItem = async (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
+  const validateFields = (): boolean => {
+    const errors: FieldErrors = {};
 
     if (!itemName.trim()) {
-      alert("Please enter an item name.");
-      return;
+      errors.itemName =
+        "Please enter an item name.";
     }
 
     if (quantity < 1) {
-      alert("Quantity must be at least 1.");
-      return;
+      errors.quantity =
+        "Quantity must be at least 1.";
     }
 
     if (!category.trim()) {
-      alert("Please enter a category.");
+      errors.category =
+        "Please enter a category.";
+    }
 
+    setFieldErrors(errors);
+
+    return Object.keys(errors).length === 0;
+  };
+
+  const clearFieldError = (
+    field: keyof FieldErrors,
+  ) => {
+    setFieldErrors((currentErrors) => {
+      const updatedErrors = {
+        ...currentErrors,
+      };
+
+      delete updatedErrors[field];
+
+      return updatedErrors;
+    });
+  };
+
+  const handleSubmitItem = async (
+    event: React.FormEvent<HTMLFormElement>,
+  ) => {
+    event.preventDefault();
+
+    if (!validateFields()) {
       return;
     }
 
     if (!id) {
-      alert("Shopping list could not be found.");
+      dispatch(
+        setItemError(
+          "Shopping list could not be found.",
+        ),
+      );
 
       return;
     }
@@ -98,36 +160,61 @@ function ShoppingList() {
       dispatch(setItemError(null));
 
       if (editingItemId) {
-        const existingItem = items.find((item) => item.id === editingItemId);
+        const existingItem = items.find(
+          (item) =>
+            item.id === editingItemId,
+        );
 
         if (!existingItem) {
-          alert("Item could not be found.");
+          dispatch(
+            setItemError(
+              "Item could not be found.",
+            ),
+          );
 
           return;
         }
 
-        let imageUrl = existingItem.imageUrl;
+        let imageUrl =
+          existingItem.imageUrl;
 
-        let unsplashPhotoId = existingItem.unsplashPhotoId;
+        let unsplashPhotoId =
+          existingItem.unsplashPhotoId;
 
-        let photographerName = existingItem.photographerName;
+        let photographerName =
+          existingItem.photographerName;
 
-        let photographerProfileUrl = existingItem.photographerProfileUrl;
+        let photographerProfileUrl =
+          existingItem.photographerProfileUrl;
 
         if (
-          itemName.trim().toLowerCase() !==
-          existingItem.name.trim().toLowerCase()
+          itemName
+            .trim()
+            .toLowerCase() !==
+          existingItem.name
+            .trim()
+            .toLowerCase()
         ) {
           setImageLoading(true);
 
           try {
-            const image = await searchUnsplashImage(itemName.trim());
+            const image =
+              await searchUnsplashImage(
+                itemName.trim(),
+              );
 
             if (image) {
-              imageUrl = image.imageUrl;
-              unsplashPhotoId = image.unsplashPhotoId;
-              photographerName = image.photographerName;
-              photographerProfileUrl = image.photographerProfileUrl;
+              imageUrl =
+                image.imageUrl;
+
+              unsplashPhotoId =
+                image.unsplashPhotoId;
+
+              photographerName =
+                image.photographerName;
+
+              photographerProfileUrl =
+                image.photographerProfileUrl;
             }
           } finally {
             setImageLoading(false);
@@ -138,22 +225,39 @@ function ShoppingList() {
           ...existingItem,
 
           name: itemName.trim(),
+
           quantity,
+
           category: category.trim(),
+
           imageUrl,
+
           unsplashPhotoId,
+
           photographerName,
+
           photographerProfileUrl,
         };
 
-        const savedItem = await updateShoppingItem(editingItemId, updatedItem);
+        const savedItem =
+          await updateShoppingItem(
+            editingItemId,
+            updatedItem,
+          );
 
-        dispatch(updateItem(savedItem));
+        dispatch(
+          updateItem(savedItem),
+        );
 
         setEditingItemId(null);
+
         setItemName("");
+
         setQuantity(1);
+
         setCategory("");
+
+        setFieldErrors({});
 
         return;
       }
@@ -163,7 +267,10 @@ function ShoppingList() {
       let image = null;
 
       try {
-        image = await searchUnsplashImage(itemName.trim());
+        image =
+          await searchUnsplashImage(
+            itemName.trim(),
+          );
       } finally {
         setImageLoading(false);
       }
@@ -179,18 +286,26 @@ function ShoppingList() {
 
         completed: false,
 
-        createdAt: new Date().toISOString(),
+        createdAt:
+          new Date().toISOString(),
 
-        imageUrl: image?.imageUrl,
+        imageUrl:
+          image?.imageUrl,
 
-        unsplashPhotoId: image?.unsplashPhotoId,
+        unsplashPhotoId:
+          image?.unsplashPhotoId,
 
-        photographerName: image?.photographerName,
+        photographerName:
+          image?.photographerName,
 
-        photographerProfileUrl: image?.photographerProfileUrl,
+        photographerProfileUrl:
+          image?.photographerProfileUrl,
       };
 
-      const createdItem = await createShoppingItem(newItem);
+      const createdItem =
+        await createShoppingItem(
+          newItem,
+        );
 
       dispatch(addItem(createdItem));
 
@@ -199,6 +314,8 @@ function ShoppingList() {
       setQuantity(1);
 
       setCategory("");
+
+      setFieldErrors({});
     } catch (error) {
       console.error(error);
 
@@ -214,7 +331,9 @@ function ShoppingList() {
     }
   };
 
-  const handleEditItem = (item: ShoppingItem) => {
+  const handleEditItem = (
+    item: ShoppingItem,
+  ) => {
     setEditingItemId(item.id);
 
     setItemName(item.name);
@@ -222,6 +341,8 @@ function ShoppingList() {
     setQuantity(item.quantity);
 
     setCategory(item.category);
+
+    setFieldErrors({});
 
     window.scrollTo({
       top: 0,
@@ -231,15 +352,23 @@ function ShoppingList() {
 
   const handleCancelEdit = () => {
     setEditingItemId(null);
+
     setItemName("");
+
     setQuantity(1);
+
     setCategory("");
+
+    setFieldErrors({});
   };
 
-  const handleDeleteItem = async (item: ShoppingItem) => {
-    const confirmed = window.confirm(
-      `Are you sure you want to delete "${item.name}"?`,
-    );
+  const handleDeleteItem = async (
+    item: ShoppingItem,
+  ) => {
+    const confirmed =
+      window.confirm(
+        `Are you sure you want to delete "${item.name}"?`,
+      );
 
     if (!confirmed) {
       return;
@@ -252,15 +381,23 @@ function ShoppingList() {
 
       dispatch(deleteItem(item.id));
 
-      if (editingItemId === item.id) {
+      if (
+        editingItemId === item.id
+      ) {
         handleCancelEdit();
       }
     } catch {
-      dispatch(setItemError("Unable to delete shopping item."));
+      dispatch(
+        setItemError(
+          "Unable to delete shopping item.",
+        ),
+      );
     }
   };
 
-  const handleToggleComplete = async (item: ShoppingItem) => {
+  const handleToggleComplete = async (
+    item: ShoppingItem,
+  ) => {
     try {
       dispatch(setItemError(null));
 
@@ -270,60 +407,109 @@ function ShoppingList() {
         completed: !item.completed,
       };
 
-      const savedItem = await updateShoppingItem(item.id, updatedItem);
+      const savedItem =
+        await updateShoppingItem(
+          item.id,
+          updatedItem,
+        );
 
-      dispatch(updateItem(savedItem));
+      dispatch(
+        updateItem(savedItem),
+      );
     } catch {
-      dispatch(setItemError("Unable to update item."));
+      dispatch(
+        setItemError(
+          "Unable to update item.",
+        ),
+      );
     }
   };
 
-  const filteredAndSortedItems = useMemo(() => {
-    let filteredItems = [...items];
+  const filteredAndSortedItems =
+    useMemo(() => {
+      let filteredItems = [...items];
 
-    if (searchTerm.trim()) {
-      const search = searchTerm.toLowerCase();
+      if (searchTerm.trim()) {
+        const search =
+          searchTerm.toLowerCase();
 
-      filteredItems = filteredItems.filter(
-        (item) =>
-          item.name.toLowerCase().includes(search) ||
-          item.category.toLowerCase().includes(search),
-      );
-    }
+        filteredItems =
+          filteredItems.filter(
+            (item) =>
+              item.name
+                .toLowerCase()
+                .includes(search) ||
+              item.category
+                .toLowerCase()
+                .includes(search),
+          );
+      }
 
-    if (sortOption === "name") {
-      filteredItems.sort((a, b) => a.name.localeCompare(b.name));
-    }
+      if (sortOption === "name") {
+        filteredItems.sort(
+          (a, b) =>
+            a.name.localeCompare(
+              b.name,
+            ),
+        );
+      }
 
-    if (sortOption === "category") {
-      filteredItems.sort((a, b) => a.category.localeCompare(b.category));
-    }
+      if (sortOption === "category") {
+        filteredItems.sort(
+          (a, b) =>
+            a.category.localeCompare(
+              b.category,
+            ),
+        );
+      }
 
-    if (sortOption === "completed") {
-      filteredItems.sort((a, b) => Number(a.completed) - Number(b.completed));
-    }
+      if (
+        sortOption === "completed"
+      ) {
+        filteredItems.sort(
+          (a, b) =>
+            Number(a.completed) -
+            Number(b.completed),
+        );
+      }
 
-    if (sortOption === "newest") {
-      filteredItems.sort(
-        (a, b) =>
-          new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
-      );
-    }
+      if (sortOption === "newest") {
+        filteredItems.sort(
+          (a, b) =>
+            new Date(
+              b.createdAt,
+            ).getTime() -
+            new Date(
+              a.createdAt,
+            ).getTime(),
+        );
+      }
 
-    if (sortOption === "oldest") {
-      filteredItems.sort(
-        (a, b) =>
-          new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime(),
-      );
-    }
+      if (sortOption === "oldest") {
+        filteredItems.sort(
+          (a, b) =>
+            new Date(
+              a.createdAt,
+            ).getTime() -
+            new Date(
+              b.createdAt,
+            ).getTime(),
+        );
+      }
 
-    return filteredItems;
-  }, [items, searchTerm, sortOption]);
+      return filteredItems;
+    }, [
+      items,
+      searchTerm,
+      sortOption,
+    ]);
 
   if (listLoading) {
     return (
       <main className="shopping-list-page">
-        <p>Loading shopping list...</p>
+        <p>
+          Loading shopping list...
+        </p>
       </main>
     );
   }
@@ -332,11 +518,16 @@ function ShoppingList() {
     return (
       <main className="shopping-list-page">
         <section className="error-state">
-          <h1>Something went wrong</h1>
+          <h1>
+            Something went wrong
+          </h1>
 
           <p>{listError}</p>
 
-          <Link to="/home" className="button button-primary">
+          <Link
+            to="/home"
+            className="button button-primary"
+          >
             Back to Shopping Lists
           </Link>
         </section>
@@ -348,11 +539,19 @@ function ShoppingList() {
     return (
       <main className="shopping-list-page">
         <section className="empty-state">
-          <h1>Shopping List Not Found</h1>
+          <h1>
+            Shopping List Not Found
+          </h1>
 
-          <p>The shopping list you're looking for does not exist.</p>
+          <p>
+            The shopping list you're
+            looking for does not exist.
+          </p>
 
-          <Link to="/home" className="button button-primary">
+          <Link
+            to="/home"
+            className="button button-primary"
+          >
             Back to Shopping Lists
           </Link>
         </section>
@@ -363,7 +562,10 @@ function ShoppingList() {
   return (
     <main className="shopping-list-page">
       <section className="shopping-list-header">
-        <Link to="/home" className="back-link">
+        <Link
+          to="/home"
+          className="back-link"
+        >
           ← Back to Shopping Lists
         </Link>
 
@@ -372,15 +574,25 @@ function ShoppingList() {
             {shoppingList.category}
           </span>
 
-          <h1>{shoppingList.name}</h1>
+          <h1>
+            {shoppingList.name}
+          </h1>
 
-          {shoppingList.notes && <p>{shoppingList.notes}</p>}
+          {shoppingList.notes && (
+            <p>
+              {shoppingList.notes}
+            </p>
+          )}
         </div>
       </section>
 
       <section className="add-item-section">
         <div className="section-header">
-          <h2>{editingItemId ? "Edit Shopping Item" : "Add Shopping Item"}</h2>
+          <h2>
+            {editingItemId
+              ? "Edit Shopping Item"
+              : "Add Shopping Item"}
+          </h2>
 
           <p>
             {editingItemId
@@ -389,41 +601,141 @@ function ShoppingList() {
           </p>
         </div>
 
-        <form className="add-item-form" onSubmit={handleSubmitItem}>
+        <form
+          className="add-item-form"
+          onSubmit={handleSubmitItem}
+        >
           <div className="form-group">
-            <label htmlFor="itemName">Item Name</label>
+            <label htmlFor="itemName">
+              Item Name
+            </label>
 
             <input
               id="itemName"
               type="text"
               value={itemName}
-              onChange={(event) => setItemName(event.target.value)}
+              onChange={(event) => {
+                setItemName(
+                  event.target.value,
+                );
+
+                if (
+                  event.target.value.trim()
+                ) {
+                  clearFieldError(
+                    "itemName",
+                  );
+                }
+              }}
               placeholder="e.g. Milk"
+              className={
+                fieldErrors.itemName
+                  ? "input-error"
+                  : ""
+              }
             />
+
+            {fieldErrors.itemName && (
+              <div className="inline-toast inline-toast-error">
+                <HugeiconsIcon
+                  icon={AlertCircleIcon}
+                  size={16}
+                />
+
+                <span>
+                  {fieldErrors.itemName}
+                </span>
+              </div>
+            )}
           </div>
 
           <div className="form-group">
-            <label htmlFor="quantity">Quantity</label>
+            <label htmlFor="quantity">
+              Quantity
+            </label>
 
             <input
               id="quantity"
               type="number"
               min="1"
               value={quantity}
-              onChange={(event) => setQuantity(Number(event.target.value))}
+              onChange={(event) => {
+                const value =
+                  Number(
+                    event.target.value,
+                  );
+
+                setQuantity(value);
+
+                if (value >= 1) {
+                  clearFieldError(
+                    "quantity",
+                  );
+                }
+              }}
+              className={
+                fieldErrors.quantity
+                  ? "input-error"
+                  : ""
+              }
             />
+
+            {fieldErrors.quantity && (
+              <div className="inline-toast inline-toast-error">
+                <HugeiconsIcon
+                  icon={AlertCircleIcon}
+                  size={16}
+                />
+
+                <span>
+                  {fieldErrors.quantity}
+                </span>
+              </div>
+            )}
           </div>
 
           <div className="form-group">
-            <label htmlFor="category">Category</label>
+            <label htmlFor="category">
+              Category
+            </label>
 
             <input
               id="category"
               type="text"
               value={category}
-              onChange={(event) => setCategory(event.target.value)}
+              onChange={(event) => {
+                setCategory(
+                  event.target.value,
+                );
+
+                if (
+                  event.target.value.trim()
+                ) {
+                  clearFieldError(
+                    "category",
+                  );
+                }
+              }}
               placeholder="e.g. Dairy"
+              className={
+                fieldErrors.category
+                  ? "input-error"
+                  : ""
+              }
             />
+
+            {fieldErrors.category && (
+              <div className="inline-toast inline-toast-error">
+                <HugeiconsIcon
+                  icon={AlertCircleIcon}
+                  size={16}
+                />
+
+                <span>
+                  {fieldErrors.category}
+                </span>
+              </div>
+            )}
           </div>
 
           <div className="item-form-buttons">
@@ -436,14 +748,16 @@ function ShoppingList() {
                 ? "Finding image..."
                 : editingItemId
                   ? "Save Changes"
-                  : "+ Add Item"}
+                  : "Add Item"}
             </button>
 
             {editingItemId && (
               <button
                 type="button"
                 className="button button-secondary"
-                onClick={handleCancelEdit}
+                onClick={
+                  handleCancelEdit
+                }
               >
                 Cancel
               </button>
@@ -455,11 +769,16 @@ function ShoppingList() {
       <section className="shopping-items-section">
         <div className="section-header">
           <div>
-            <h2>Shopping Items</h2>
+            <h2>
+              Shopping Items
+            </h2>
 
             <p>
-              {items.length} {items.length === 1 ? "item" : "items"} in this
-              list.
+              {items.length}{" "}
+              {items.length === 1
+                ? "item"
+                : "items"}{" "}
+              in this list.
             </p>
           </div>
         </div>
@@ -467,135 +786,227 @@ function ShoppingList() {
         {items.length > 0 && (
           <div className="items-toolbar">
             <div className="search-container">
-              <label htmlFor="searchItems">Search</label>
+              <label htmlFor="searchItems">
+                Search
+              </label>
 
               <input
                 id="searchItems"
                 type="text"
                 value={searchTerm}
-                onChange={(event) => setSearchTerm(event.target.value)}
+                onChange={(event) =>
+                  setSearchTerm(
+                    event.target.value,
+                  )
+                }
                 placeholder="Search items..."
               />
             </div>
 
             <div className="sort-container">
-              <label htmlFor="sortItems">Sort by</label>
+              <label htmlFor="sortItems">
+                Sort by
+              </label>
 
               <select
                 id="sortItems"
                 value={sortOption}
-                onChange={(event) => setSortOption(event.target.value)}
+                onChange={(event) =>
+                  setSortOption(
+                    event.target.value,
+                  )
+                }
               >
-                <option value="newest">Newest</option>
+                <option value="newest">
+                  Newest
+                </option>
 
-                <option value="oldest">Oldest</option>
+                <option value="oldest">
+                  Oldest
+                </option>
 
-                <option value="name">Name</option>
+                <option value="name">
+                  Name
+                </option>
 
-                <option value="category">Category</option>
+                <option value="category">
+                  Category
+                </option>
 
-                <option value="completed">Completed</option>
+                <option value="completed">
+                  Completed
+                </option>
               </select>
             </div>
           </div>
         )}
 
-        {error && <p className="error-message">{error}</p>}
+        {error && (
+          <p className="error-message">
+            {error}
+          </p>
+        )}
 
-        {loading && <p>Loading shopping items...</p>}
-
-        {!loading && items.length === 0 && (
-          <section className="empty-state">
-            <div className="empty-state-icon">🛒</div>
-
-            <h2>No items yet</h2>
-
-            <p>Start adding items to your shopping list.</p>
-          </section>
+        {loading && (
+          <p>
+            Loading shopping items...
+          </p>
         )}
 
         {!loading &&
-          items.length > 0 &&
-          filteredAndSortedItems.length === 0 && (
+          items.length === 0 && (
             <section className="empty-state">
-              <h2>No items found</h2>
+              <div className="empty-state-icon">
+                <HugeiconsIcon
+                  icon={
+                    AlertCircleIcon
+                  }
+                  size={42}
+                />
+              </div>
 
-              <p>Try using a different search term.</p>
+              <h2>
+                No items yet
+              </h2>
+
+              <p>
+                Start adding items to
+                your shopping list.
+              </p>
             </section>
           )}
 
-        {!loading && filteredAndSortedItems.length > 0 && (
-          <div className="shopping-items-list">
-            {filteredAndSortedItems.map((item) => (
-              <article
-                className={`shopping-item ${
-                  item.completed ? "shopping-item-completed" : ""
-                }`}
-                key={item.id}
-              >
-                <div className="shopping-item-check">
-                  <input
-                    type="checkbox"
-                    checked={item.completed}
-                    onChange={() => handleToggleComplete(item)}
-                    aria-label={`Mark ${item.name} as ${
-                      item.completed ? "incomplete" : "complete"
+        {!loading &&
+          items.length > 0 &&
+          filteredAndSortedItems.length ===
+            0 && (
+            <section className="empty-state">
+              <h2>
+                No items found
+              </h2>
+
+              <p>
+                Try using a different
+                search term.
+              </p>
+            </section>
+          )}
+
+        {!loading &&
+          filteredAndSortedItems.length >
+            0 && (
+            <div className="shopping-items-list">
+              {filteredAndSortedItems.map(
+                (item) => (
+                  <article
+                    className={`shopping-item ${
+                      item.completed
+                        ? "shopping-item-completed"
+                        : ""
                     }`}
-                  />
-                </div>
-
-                <div className="shopping-item-image-wrapper">
-                  {item.imageUrl ? (
-                    <img
-                      src={item.imageUrl}
-                      alt={item.name}
-                      className="shopping-item-image"
-                    />
-                  ) : (
-                    <div className="shopping-item-image-placeholder">🛒</div>
-                  )}
-                </div>
-
-                <div className="shopping-item-info">
-                  <h3>{item.name}</h3>
-
-                  <div className="shopping-item-details">
-                    <span>Quantity: {item.quantity}</span>
-
-                    <span>{item.category}</span>
-                  </div>
-
-                </div>
-
-                <div className="shopping-item-status">
-                  {item.completed ? (
-                    <span className="status-complete">Complete</span>
-                  ) : (
-                    <span className="status-pending">Pending</span>
-                  )}
-                </div>
-
-                <div className="shopping-item-actions">
-                  <button
-                    type="button"
-                    className="button button-secondary button-small"
-                    onClick={() => handleEditItem(item)}
+                    key={item.id}
                   >
-                    Edit
-                  </button>
+                    <div className="shopping-item-check">
+                      <input
+                        type="checkbox"
+                        checked={
+                          item.completed
+                        }
+                        onChange={() =>
+                          handleToggleComplete(
+                            item,
+                          )
+                        }
+                        aria-label={`Mark ${
+                          item.name
+                        } as ${
+                          item.completed
+                            ? "incomplete"
+                            : "complete"
+                        }`}
+                      />
+                    </div>
 
-                  <button
-                    type="button"
-                    className="button button-danger button-small"
-                    onClick={() => handleDeleteItem(item)}
-                  >
-                    Delete
-                  </button>
-                </div>
-              </article>
-            ))}
-          </div>
-        )}
+                    <div className="shopping-item-image-wrapper">
+                      {item.imageUrl ? (
+                        <img
+                          src={
+                            item.imageUrl
+                          }
+                          alt={item.name}
+                          className="shopping-item-image"
+                        />
+                      ) : (
+                        <div className="shopping-item-image-placeholder">
+                          <HugeiconsIcon
+                            icon={
+                              AlertCircleIcon
+                            }
+                            size={25}
+                          />
+                        </div>
+                      )}
+                    </div>
+
+                    <div className="shopping-item-info">
+                      <h3>
+                        {item.name}
+                      </h3>
+
+                      <div className="shopping-item-details">
+                        <span>
+                          Quantity:{" "}
+                          {item.quantity}
+                        </span>
+
+                        <span>
+                          {item.category}
+                        </span>
+                      </div>
+                    </div>
+
+                    <div className="shopping-item-status">
+                      {item.completed ? (
+                        <span className="status-complete">
+                          Complete
+                        </span>
+                      ) : (
+                        <span className="status-pending">
+                          Pending
+                        </span>
+                      )}
+                    </div>
+
+                    <div className="shopping-item-actions">
+                      <button
+                        type="button"
+                        className="button button-secondary button-small"
+                        onClick={() =>
+                          handleEditItem(
+                            item,
+                          )
+                        }
+                      >
+                        Edit
+                      </button>
+
+                      <button
+                        type="button"
+                        className="button button-danger button-small"
+                        onClick={() =>
+                          handleDeleteItem(
+                            item,
+                          )
+                        }
+                      >
+                        Delete
+                      </button>
+                    </div>
+                  </article>
+                ),
+              )}
+            </div>
+          )}
       </section>
     </main>
   );

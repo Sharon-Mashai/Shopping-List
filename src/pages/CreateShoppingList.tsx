@@ -2,26 +2,27 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import type { AppDispatch,RootState,} from "../store/store";
-import {addShoppingList,} from "../store/slices/ShoppingListSlice";
-import {createShoppingList,} from "../services/api";
-import {searchUnsplashImage,} from "../services/unsplash";
+import { addShoppingList,} from "../store/slices/ShoppingListSlice";
+import { createShoppingList,} from "../services/api";
+import { searchUnsplashImage,} from "../services/unsplash";
+import useToast from "../hooks/useToast";
 
 function CreateShoppingList() {
   const navigate = useNavigate();
 
   const dispatch = useDispatch<AppDispatch>();
 
-  const user = useSelector(
-    (state: RootState) => state.auth.user,
-  );
+  const user = useSelector((state: RootState) => state.auth.user,);
+
+  const { showToast } = useToast();
 
   const [name, setName] = useState("");
 
-  const [category, setCategory] = useState("");
+  const [category, setCategory] =useState("");
 
   const [notes, setNotes] = useState("");
 
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState< string | null >(null);
 
   const [saving, setSaving] = useState(false);
 
@@ -103,11 +104,21 @@ function CreateShoppingList() {
         addShoppingList(createdList),
       );
 
-      navigate("/home");
-    } catch {
-      setError(
-        "Unable to create shopping list. Please try again.",
+      showToast(
+        "Shopping list created successfully.",
+        "success",
       );
+
+      navigate("/home");
+    } catch (error) {
+      console.error(error);
+
+      const message =
+        "Unable to create shopping list. Please try again.";
+
+      setError(message);
+
+      showToast(message, "error");
     } finally {
       setSaving(false);
     }

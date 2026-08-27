@@ -1,11 +1,12 @@
-import {useEffect,useState,} from "react";
-import {useNavigate, useParams,} from "react-router-dom";
+import { useEffect, useState,} from "react";
+import { useNavigate, useParams,} from "react-router-dom";
 import { useDispatch } from "react-redux";
 import type { FormEvent } from "react";
-import type { AppDispatch,} from "../store/store";
+import type { AppDispatch } from "../store/store";
 import { getShoppingList, updateShoppingList,} from "../services/api";
-import {updateShoppingList as updateShoppingListState,} from "../store/slices/ShoppingListSlice";
+import { updateShoppingList as updateShoppingListState,} from "../store/slices/ShoppingListSlice";
 import { searchUnsplashImage,} from "../services/unsplash";
+import useToast from "../hooks/useToast";
 
 function EditShoppingList() {
   const { id } =
@@ -14,6 +15,8 @@ function EditShoppingList() {
   const navigate = useNavigate();
 
   const dispatch = useDispatch<AppDispatch>();
+
+  const { showToast } = useToast();
 
   const [name, setName] = useState("");
 
@@ -29,7 +32,7 @@ function EditShoppingList() {
 
   const [saving, setSaving] = useState(false);
 
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState< string | null>(null);
 
   useEffect(() => {
     async function loadShoppingList() {
@@ -171,11 +174,21 @@ function EditShoppingList() {
         ),
       );
 
-      navigate("/home");
-    } catch {
-      setError(
-        "Unable to update shopping list.",
+      showToast(
+        "Shopping list updated successfully.",
+        "success",
       );
+
+      navigate("/home");
+    } catch (error) {
+      console.error(error);
+
+      const message =
+        "Unable to update shopping list.";
+
+      setError(message);
+
+      showToast(message, "error");
     } finally {
       setSaving(false);
     }
@@ -184,22 +197,17 @@ function EditShoppingList() {
   if (loading) {
     return (
       <main className="form-page">
-
         <section className="form-card">
-
           <p>
             Loading shopping list...
           </p>
-
         </section>
-
       </main>
     );
   }
 
   return (
     <main className="form-page">
-
       <section className="form-card">
 
         <div className="form-card-header">
@@ -327,7 +335,6 @@ function EditShoppingList() {
         </form>
 
       </section>
-
     </main>
   );
 }
