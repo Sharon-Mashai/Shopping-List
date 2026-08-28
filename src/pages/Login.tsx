@@ -72,7 +72,7 @@ function Login() {
       );
 
       showToast(
-        `Welcome back, ${user.name}!`,
+        `Welcome, ${user.name}!`,
         "success",
       );
 
@@ -93,7 +93,7 @@ function Login() {
 
         <div className="auth-header">
           <h1>
-            Welcome Back!
+            Welcome
           </h1>
 
           <p>
