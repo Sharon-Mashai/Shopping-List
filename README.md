@@ -50,7 +50,7 @@ Users should be able to:
 
 ## Login Page
 
-![Login Page](src/assets/login.png)
+![Login Page](src/assets/Login.png)
 
 ## Registration Page
 
@@ -62,11 +62,11 @@ Users should be able to:
 
 ## Shopping List
 
-![Shopping List](src/assets/Shopping list.png)
+![Shopping List](src/assets/Shoppinglist.png)
 
 ## Profile
 
-![Profile](src/assets/profile.png)
+![Profile](src/assets/Profile.png)
 
 ---
 
