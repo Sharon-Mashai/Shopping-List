@@ -280,10 +280,6 @@ function Home() {
     );
   };
 
-  /*
-   * Select all shopping lists owned
-   * by the current user.
-   */
   const handleSelectAll = () => {
     const ownListIds =
       shoppingLists
@@ -319,9 +315,6 @@ function Home() {
     }
   };
 
-  /*
-   * Open the share modal.
-   */
   const handleOpenShare = () => {
     if (
       selectedLists.length === 0
@@ -339,10 +332,7 @@ function Home() {
     setShowShareModal(true);
   };
 
-  /*
-   * Share all selected lists with
-   * the entered email address.
-   */
+
   const handleShare = async () => {
     setShareError(null);
 
@@ -385,10 +375,7 @@ function Home() {
       return;
     }
 
-    /*
-     * Only lists belonging to the
-     * current user can be shared.
-     */
+    
     const listsToShare =
       shoppingLists.filter(
         (list) =>
@@ -425,10 +412,7 @@ function Home() {
       let sharedCount = 0;
 
       for (const list of listsToShare) {
-        /*
-         * sharedWith is expected to be an
-         * array of email addresses.
-         */
+       
         const existingSharedWith =
           list.sharedWith || [];
 
@@ -496,9 +480,6 @@ function Home() {
     }
   };
 
-  /*
-   * Open delete confirmation modal.
-   */
   const handleDeleteList = (
     id: string,
     name: string,
@@ -509,9 +490,7 @@ function Home() {
     });
   };
 
-  /*
-   * Delete shopping list.
-   */
+ 
   const confirmDeleteList =
     async () => {
       if (!deleteTarget) {
@@ -550,10 +529,6 @@ function Home() {
           },
         );
 
-        /*
-         * Also remove the deleted list
-         * from the selected lists.
-         */
         setSelectedLists(
           (current) =>
             current.filter(
@@ -903,9 +878,6 @@ function Home() {
               </div>
             </div>
 
-            {/*
-             * MULTIPLE LIST SELECTION
-             */}
             <div className="shopping-list-selection-toolbar">
               <label className="shopping-list-select-all">
                 <input
@@ -989,12 +961,7 @@ function Home() {
                       key={list.id}
                     >
                       <div className="home-shopping-card-top">
-                        {/*
-                         * Selection checkbox
-                         *
-                         * Shared lists cannot
-                         * be selected.
-                         */}
+                    
                         <div className="shopping-list-checkbox">
                           <input
                             type="checkbox"
@@ -1114,7 +1081,7 @@ function Home() {
                           className="button button-primary"
                         >
                           <span>
-                            Open List
+                            View List
                           </span>
                         </Link>
 

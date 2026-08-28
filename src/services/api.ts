@@ -1,19 +1,22 @@
 
-const API_URL = "https://shopping-list-4gol.onrender.com";
+const API_URL =
+  "https://shopping-list-4gol.onrender.com";
 
 
 export async function getShoppingLists(
   userId?: string,
 ) {
   const url = userId
-    ? `${API_URL}/shoppingLists?userId=${userId}`
+    ? `${API_URL}/shoppingLists?userId=${encodeURIComponent(
+        userId,
+      )}`
     : `${API_URL}/shoppingLists`;
 
   const response = await fetch(url);
 
   if (!response.ok) {
     throw new Error(
-      "Unable to load shopping lists.",
+      `Unable to load shopping lists. Status: ${response.status}`,
     );
   }
 
@@ -25,12 +28,14 @@ export async function getShoppingList(
   id: string,
 ) {
   const response = await fetch(
-    `${API_URL}/shoppingLists/${id}`,
+    `${API_URL}/shoppingLists/${encodeURIComponent(
+      id,
+    )}`,
   );
 
   if (!response.ok) {
     throw new Error(
-      "Unable to load shopping list.",
+      `Unable to load shopping list. Status: ${response.status}`,
     );
   }
 
@@ -54,7 +59,7 @@ export async function createShoppingList(
 
   if (!response.ok) {
     throw new Error(
-      "Unable to create shopping list.",
+      `Unable to create shopping list. Status: ${response.status}`,
     );
   }
 
@@ -67,7 +72,9 @@ export async function updateShoppingList(
   list: object,
 ) {
   const response = await fetch(
-    `${API_URL}/shoppingLists/${id}`,
+    `${API_URL}/shoppingLists/${encodeURIComponent(
+      id,
+    )}`,
     {
       method: "PATCH",
       headers: {
@@ -79,7 +86,7 @@ export async function updateShoppingList(
 
   if (!response.ok) {
     throw new Error(
-      "Unable to update shopping list.",
+      `Unable to update shopping list. Status: ${response.status}`,
     );
   }
 
@@ -91,7 +98,9 @@ export async function deleteShoppingList(
   id: string,
 ) {
   const response = await fetch(
-    `${API_URL}/shoppingLists/${id}`,
+    `${API_URL}/shoppingLists/${encodeURIComponent(
+      id,
+    )}`,
     {
       method: "DELETE",
     },
@@ -99,23 +108,39 @@ export async function deleteShoppingList(
 
   if (!response.ok) {
     throw new Error(
-      "Unable to delete shopping list.",
+      `Unable to delete shopping list. Status: ${response.status}`,
     );
   }
 }
 
 
-
 export async function getShoppingItems(
   shoppingListId: string,
 ) {
-  const response = await fetch(
-    `${API_URL}/shoppingItems?listId=${shoppingListId}`,
+  const url =
+    `${API_URL}/shoppingItems?listId=${encodeURIComponent(
+      shoppingListId,
+    )}`;
+
+  console.log(
+    "Loading shopping items from:",
+    url,
   );
 
+  const response = await fetch(url);
+
   if (!response.ok) {
+    console.error(
+      "getShoppingItems failed:",
+      {
+        url,
+        status: response.status,
+        statusText: response.statusText,
+      },
+    );
+
     throw new Error(
-      "Unable to load shopping items.",
+      `Unable to load shopping items. Status: ${response.status}`,
     );
   }
 
@@ -127,12 +152,14 @@ export async function getShoppingItem(
   id: string,
 ) {
   const response = await fetch(
-    `${API_URL}/shoppingItems/${id}`,
+    `${API_URL}/shoppingItems/${encodeURIComponent(
+      id,
+    )}`,
   );
 
   if (!response.ok) {
     throw new Error(
-      "Unable to load shopping item.",
+      `Unable to load shopping item. Status: ${response.status}`,
     );
   }
 
@@ -156,7 +183,7 @@ export async function createShoppingItem(
 
   if (!response.ok) {
     throw new Error(
-      "Unable to create shopping item.",
+      `Unable to create shopping item. Status: ${response.status}`,
     );
   }
 
@@ -169,7 +196,9 @@ export async function updateShoppingItem(
   item: object,
 ) {
   const response = await fetch(
-    `${API_URL}/shoppingItems/${id}`,
+    `${API_URL}/shoppingItems/${encodeURIComponent(
+      id,
+    )}`,
     {
       method: "PATCH",
       headers: {
@@ -181,7 +210,7 @@ export async function updateShoppingItem(
 
   if (!response.ok) {
     throw new Error(
-      "Unable to update shopping item.",
+      `Unable to update shopping item. Status: ${response.status}`,
     );
   }
 
@@ -193,7 +222,9 @@ export async function deleteShoppingItem(
   id: string,
 ) {
   const response = await fetch(
-    `${API_URL}/shoppingItems/${id}`,
+    `${API_URL}/shoppingItems/${encodeURIComponent(
+      id,
+    )}`,
     {
       method: "DELETE",
     },
@@ -201,7 +232,7 @@ export async function deleteShoppingItem(
 
   if (!response.ok) {
     throw new Error(
-      "Unable to delete shopping item.",
+      `Unable to delete shopping item. Status: ${response.status}`,
     );
   }
 }
@@ -223,7 +254,7 @@ export async function createUser(
 
   if (!response.ok) {
     throw new Error(
-      "Unable to register user.",
+      `Unable to register user. Status: ${response.status}`,
     );
   }
 
@@ -235,12 +266,14 @@ export async function getUser(
   id: string,
 ) {
   const response = await fetch(
-    `${API_URL}/users/${id}`,
+    `${API_URL}/users/${encodeURIComponent(
+      id,
+    )}`,
   );
 
   if (!response.ok) {
     throw new Error(
-      "Unable to load user.",
+      `Unable to load user. Status: ${response.status}`,
     );
   }
 
@@ -259,7 +292,7 @@ export async function getUserByEmail(
 
   if (!response.ok) {
     throw new Error(
-      "Unable to find user.",
+      `Unable to find user. Status: ${response.status}`,
     );
   }
 
@@ -272,7 +305,9 @@ export async function updateUser(
   user: object,
 ) {
   const response = await fetch(
-    `${API_URL}/users/${id}`,
+    `${API_URL}/users/${encodeURIComponent(
+      id,
+    )}`,
     {
       method: "PATCH",
       headers: {
@@ -284,7 +319,7 @@ export async function updateUser(
 
   if (!response.ok) {
     throw new Error(
-      "Unable to update user.",
+      `Unable to update user. Status: ${response.status}`,
     );
   }
 
@@ -308,7 +343,7 @@ export async function createSharedShoppingList(
 
   if (!response.ok) {
     throw new Error(
-      "Unable to share shopping list.",
+      `Unable to share shopping list. Status: ${response.status}`,
     );
   }
 
@@ -320,7 +355,9 @@ export async function deleteSharedShoppingList(
   id: string,
 ) {
   const response = await fetch(
-    `${API_URL}/sharedLists/${id}`,
+    `${API_URL}/sharedLists/${encodeURIComponent(
+      id,
+    )}`,
     {
       method: "DELETE",
     },
@@ -328,7 +365,7 @@ export async function deleteSharedShoppingList(
 
   if (!response.ok) {
     throw new Error(
-      "Unable to remove shared shopping list.",
+      `Unable to remove shared shopping list. Status: ${response.status}`,
     );
   }
 }
@@ -339,7 +376,9 @@ export async function updateSharedShoppingList(
   sharedWith: string[],
 ) {
   const response = await fetch(
-    `${API_URL}/shoppingLists/${id}`,
+    `${API_URL}/shoppingLists/${encodeURIComponent(
+      id,
+    )}`,
     {
       method: "PATCH",
       headers: {
@@ -353,7 +392,7 @@ export async function updateSharedShoppingList(
 
   if (!response.ok) {
     throw new Error(
-      "Unable to update shared shopping list.",
+      `Unable to update shared shopping list. Status: ${response.status}`,
     );
   }
 
@@ -370,19 +409,21 @@ export async function getSharedShoppingLists(
 
   if (!response.ok) {
     throw new Error(
-      "Unable to load shared shopping lists.",
+      `Unable to load shared shopping lists. Status: ${response.status}`,
     );
   }
 
-  const lists = await response.json();
+  const lists =
+    await response.json();
 
   return lists.filter(
     (list: {
       sharedWith?: string[];
     }) =>
       list.sharedWith?.some(
-        (sharedEmail) =>
-          sharedEmail.toLowerCase() ===
+        (sharedEmail: string) =>
+          sharedEmail
+            .toLowerCase() ===
           email.toLowerCase(),
       ),
   );
