@@ -1,7 +1,9 @@
+
 import { useState } from "react";
 import bcrypt from "bcryptjs";
 import { Link } from "react-router-dom";
 import useToast from "../hooks/useToast";
+import { createUser } from "../services/api";
 
 function Register() {
   const [name, setName] = useState("");
@@ -28,6 +30,7 @@ function Register() {
         "Please complete all fields.",
         "warning",
       );
+
       return;
     }
 
@@ -45,20 +48,7 @@ function Register() {
         password: passwordHash,
       };
 
-      const response = await fetch(
-        "http://localhost:3000/users",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(newUser),
-        },
-      );
-
-      if (!response.ok) {
-        throw new Error("Registration failed.");
-      }
+      await createUser(newUser);
 
       showToast(
         "Registration successful!",

@@ -1,4 +1,6 @@
-const API_URL = "http://localhost:3000";
+
+const API_URL = "https://shopping-list-4gol.onrender.com";
+
 
 export async function getShoppingLists(
   userId?: string,
@@ -43,11 +45,9 @@ export async function createShoppingList(
     `${API_URL}/shoppingLists`,
     {
       method: "POST",
-
       headers: {
         "Content-Type": "application/json",
       },
-
       body: JSON.stringify(list),
     },
   );
@@ -70,11 +70,9 @@ export async function updateShoppingList(
     `${API_URL}/shoppingLists/${id}`,
     {
       method: "PATCH",
-
       headers: {
         "Content-Type": "application/json",
       },
-
       body: JSON.stringify(list),
     },
   );
@@ -107,6 +105,7 @@ export async function deleteShoppingList(
 }
 
 
+
 export async function getShoppingItems(
   shoppingListId: string,
 ) {
@@ -122,6 +121,7 @@ export async function getShoppingItems(
 
   return response.json();
 }
+
 
 export async function getShoppingItem(
   id: string,
@@ -139,6 +139,7 @@ export async function getShoppingItem(
   return response.json();
 }
 
+
 export async function createShoppingItem(
   item: object,
 ) {
@@ -146,11 +147,9 @@ export async function createShoppingItem(
     `${API_URL}/shoppingItems`,
     {
       method: "POST",
-
       headers: {
         "Content-Type": "application/json",
       },
-
       body: JSON.stringify(item),
     },
   );
@@ -173,11 +172,9 @@ export async function updateShoppingItem(
     `${API_URL}/shoppingItems/${id}`,
     {
       method: "PATCH",
-
       headers: {
         "Content-Type": "application/json",
       },
-
       body: JSON.stringify(item),
     },
   );
@@ -210,6 +207,30 @@ export async function deleteShoppingItem(
 }
 
 
+export async function createUser(
+  user: object,
+) {
+  const response = await fetch(
+    `${API_URL}/users`,
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(user),
+    },
+  );
+
+  if (!response.ok) {
+    throw new Error(
+      "Unable to register user.",
+    );
+  }
+
+  return response.json();
+}
+
+
 export async function getUser(
   id: string,
 ) {
@@ -227,6 +248,25 @@ export async function getUser(
 }
 
 
+export async function getUserByEmail(
+  email: string,
+) {
+  const response = await fetch(
+    `${API_URL}/users?email=${encodeURIComponent(
+      email,
+    )}`,
+  );
+
+  if (!response.ok) {
+    throw new Error(
+      "Unable to find user.",
+    );
+  }
+
+  return response.json();
+}
+
+
 export async function updateUser(
   id: string,
   user: object,
@@ -235,11 +275,9 @@ export async function updateUser(
     `${API_URL}/users/${id}`,
     {
       method: "PATCH",
-
       headers: {
         "Content-Type": "application/json",
       },
-
       body: JSON.stringify(user),
     },
   );
@@ -254,7 +292,6 @@ export async function updateUser(
 }
 
 
-
 export async function createSharedShoppingList(
   sharedList: object,
 ) {
@@ -262,11 +299,9 @@ export async function createSharedShoppingList(
     `${API_URL}/sharedLists`,
     {
       method: "POST",
-
       headers: {
         "Content-Type": "application/json",
       },
-
       body: JSON.stringify(sharedList),
     },
   );
@@ -299,23 +334,6 @@ export async function deleteSharedShoppingList(
 }
 
 
-export async function getUserByEmail(
-  email: string,
-) {
-  const response = await fetch(
-    `${API_URL}/users?email=${encodeURIComponent(
-      email,
-    )}`,
-  );
-
-  if (!response.ok) {
-    throw new Error(
-      "Unable to find user.",
-    );
-  }
-
-  return response.json();
-}
 export async function updateSharedShoppingList(
   id: string,
   sharedWith: string[],
@@ -324,11 +342,9 @@ export async function updateSharedShoppingList(
     `${API_URL}/shoppingLists/${id}`,
     {
       method: "PATCH",
-
       headers: {
         "Content-Type": "application/json",
       },
-
       body: JSON.stringify({
         sharedWith,
       }),
@@ -343,6 +359,8 @@ export async function updateSharedShoppingList(
 
   return response.json();
 }
+
+
 export async function getSharedShoppingLists(
   email: string,
 ) {

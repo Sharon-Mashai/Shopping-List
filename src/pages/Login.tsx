@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import bcrypt from "bcryptjs";
 import { Link, useNavigate } from "react-router-dom";
@@ -5,6 +6,7 @@ import { useDispatch } from "react-redux";
 import type { AppDispatch } from "../store/store";
 import { login } from "../store/slices/authSlice";
 import useToast from "../hooks/useToast";
+import { getUserByEmail } from "../services/api";
 
 function Login() {
   const [email, setEmail] = useState("");
@@ -29,19 +31,9 @@ function Login() {
     }
 
     try {
-      const response = await fetch(
-        `http://localhost:3000/users?email=${encodeURIComponent(
-          email.trim(),
-        )}`,
+      const users = await getUserByEmail(
+        email.trim(),
       );
-
-      if (!response.ok) {
-        throw new Error(
-          "Unable to connect to the server.",
-        );
-      }
-
-      const users = await response.json();
 
       if (users.length === 0) {
         showToast(
