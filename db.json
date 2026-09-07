@@ -10,7 +10,7 @@
     }
   ],
   "shoppingLists": [],
-  "items": [],
+  "shoppingItems": [],
   "sharedLists": [],
   "$schema": "./node_modules/json-server/schema.json"
 }
