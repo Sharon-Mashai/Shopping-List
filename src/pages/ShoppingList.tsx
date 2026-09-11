@@ -2,42 +2,12 @@ import { useEffect, useMemo, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { HugeiconsIcon } from "@hugeicons/react";
-import {
-  AlertCircleIcon,
-  Delete02Icon,
-} from "@hugeicons/core-free-icons";
-
-import type {
-  AppDispatch,
-  RootState,
-} from "../store/store";
-
-import type {
-  ShoppingItem,
-  ShoppingList as ShoppingListType,
-} from "../types";
-
-import {
-  setItems,
-  addItem,
-  updateItem,
-  deleteItem,
-  setItemLoading,
-  setItemError,
-} from "../store/slices/ShoppingItemsSlice";
-
-import {
-  getShoppingList,
-  getShoppingItems,
-  createShoppingItem,
-  updateShoppingItem,
-  deleteShoppingItem,
-} from "../services/api";
-
-import {
-  searchUnsplashImage,
-} from "../services/unsplash";
-
+import { AlertCircleIcon, Delete02Icon } from "@hugeicons/core-free-icons";
+import type { AppDispatch, RootState } from "../store/store";
+import type { ShoppingItem, ShoppingList as ShoppingListType } from "../types";
+import { setItems, addItem, updateItem, deleteItem, setItemLoading, setItemError,} from "../store/slices/ShoppingItemsSlice";
+import {getShoppingList, getShoppingItems, createShoppingItem, updateShoppingItem, deleteShoppingItem,} from "../services/api";
+import { searchUnsplashImage } from "../services/unsplash";
 import useToast from "../hooks/useToast";
 
 type FieldErrors = {
@@ -47,125 +17,52 @@ type FieldErrors = {
 };
 
 function ShoppingList() {
-  const { id } =
-    useParams<{ id: string }>();
+  const { id } = useParams<{ id: string }>();
 
-  const dispatch =
-    useDispatch<AppDispatch>();
+  const dispatch = useDispatch<AppDispatch>();
 
-  const user = useSelector(
-    (state: RootState) =>
-      state.auth.user,
+  const user = useSelector((state: RootState) => state.auth.user);
+
+  const { items, loading, error } = useSelector(
+    (state: RootState) => state.shoppingItems,
   );
 
-  const {
-    items,
-    loading,
-    error,
-  } = useSelector(
-    (state: RootState) =>
-      state.shoppingItems,
+  const { showToast } = useToast();
+
+  const [shoppingList, setShoppingList] = useState<ShoppingListType | null>(
+    null,
   );
 
-  const { showToast } =
-    useToast();
+  const [listLoading, setListLoading] = useState(true);
 
-  const [
-    shoppingList,
-    setShoppingList,
-  ] =
-    useState<ShoppingListType | null>(
-      null,
-    );
+  const [listError, setListError] = useState<string | null>(null);
 
-  const [
-    listLoading,
-    setListLoading,
-  ] =
-    useState(true);
+  const [itemName, setItemName] = useState("");
 
-  const [
-    listError,
-    setListError,
-  ] =
-    useState<string | null>(
-      null,
-    );
+  const [quantity, setQuantity] = useState(1);
 
-  const [
-    itemName,
-    setItemName,
-  ] =
-    useState("");
+  const [category, setCategory] = useState("");
 
-  const [
-    quantity,
-    setQuantity,
-  ] =
-    useState(1);
+  const [editingItemId, setEditingItemId] = useState<string | null>(null);
 
-  const [
-    category,
-    setCategory,
-  ] =
-    useState("");
+  const [searchTerm, setSearchTerm] = useState("");
 
-  const [
-    editingItemId,
-    setEditingItemId,
-  ] =
-    useState<string | null>(
-      null,
-    );
+  const [sortOption, setSortOption] = useState("newest");
 
-  const [
-    searchTerm,
-    setSearchTerm,
-  ] =
-    useState("");
+  const [imageLoading, setImageLoading] = useState(false);
 
-  const [
-    sortOption,
-    setSortOption,
-  ] =
-    useState("newest");
+  const [fieldErrors, setFieldErrors] = useState<FieldErrors>({});
 
-  const [
-    imageLoading,
-    setImageLoading,
-  ] =
-    useState(false);
+  const [deleteTarget, setDeleteTarget] = useState<ShoppingItem | null>(null);
 
-  const [
-    fieldErrors,
-    setFieldErrors,
-  ] =
-    useState<FieldErrors>({});
-
-  const [
-    deleteTarget,
-    setDeleteTarget,
-  ] =
-    useState<ShoppingItem | null>(
-      null,
-    );
-
-  const [
-    deletingItemId,
-    setDeletingItemId,
-  ] =
-    useState<string | null>(
-      null,
-    );
+  const [deletingItemId, setDeletingItemId] = useState<string | null>(null);
 
   useEffect(() => {
     async function loadData() {
       if (!id || !user) {
         setShoppingList(null);
 
-        setListError(
-          "Shopping list could not be found.",
-        );
+        setListError("Shopping list could not be found.");
 
         setListLoading(false);
 
@@ -176,45 +73,26 @@ function ShoppingList() {
         setListLoading(true);
         setListError(null);
 
-        dispatch(
-          setItemLoading(true),
-        );
+        dispatch(setItemLoading(true));
 
-        dispatch(
-          setItemError(null),
-        );
+        dispatch(setItemError(null));
 
-        dispatch(
-          setItems([]),
-        );
+        dispatch(setItems([]));
 
-        let list:
-          ShoppingListType;
+        let list: ShoppingListType;
 
         try {
-          list =
-            await getShoppingList(
-              id,
-            );
+          list = await getShoppingList(id);
         } catch (error) {
-          console.error(
-            "Unable to load shopping list:",
-            error,
-          );
+          console.error("Unable to load shopping list:", error);
 
-          setListError(
-            "Unable to load the shopping list.",
-          );
+          setListError("Unable to load the shopping list.");
 
           return;
         }
 
-        if (
-          list.userId !== user.id
-        ) {
-          setListError(
-            "You do not have access to this shopping list.",
-          );
+        if (list.userId !== user.id) {
+          setListError("You do not have access to this shopping list.");
 
           return;
         }
@@ -222,367 +100,245 @@ function ShoppingList() {
         setShoppingList(list);
 
         try {
-          const shoppingItems =
-            await getShoppingItems(
-              id,
-            );
+          const shoppingItems = await getShoppingItems(id);
 
-          dispatch(
-            setItems(
-              Array.isArray(
-                shoppingItems,
-              )
-                ? shoppingItems
-                : [],
-            ),
-          );
+          dispatch(setItems(Array.isArray(shoppingItems) ? shoppingItems : []));
         } catch (error) {
-          console.warn(
-            "No shopping items were found for this list:",
-            error,
-          );
+          console.warn("No shopping items were found for this list:", error);
 
-          dispatch(
-            setItems([]),
-          );
+          dispatch(setItems([]));
 
-          dispatch(
-            setItemError(null),
-          );
+          dispatch(setItemError(null));
         }
       } finally {
         setListLoading(false);
 
-        dispatch(
-          setItemLoading(false),
-        );
+        dispatch(setItemLoading(false));
       }
     }
 
     loadData();
-  }, [
-    id,
-    user,
-    dispatch,
-  ]);
+  }, [id, user, dispatch]);
 
-  const validateFields =
-    (): boolean => {
-      const errors:
-        FieldErrors = {};
+  const validateFields = (): boolean => {
+    const errors: FieldErrors = {};
 
-      if (!itemName.trim()) {
-        errors.itemName =
-          "Please enter an item name.";
-      }
+    if (!itemName.trim()) {
+      errors.itemName = "Please enter an item name.";
+    }
 
-      if (quantity < 1) {
-        errors.quantity =
-          "Quantity must be at least 1.";
-      }
+    if (quantity < 1) {
+      errors.quantity = "Quantity must be at least 1.";
+    }
 
-      if (!category.trim()) {
-        errors.category =
-          "Please enter a category.";
-      }
+    if (!category.trim()) {
+      errors.category = "Please enter a category.";
+    }
 
-      setFieldErrors(errors);
+    setFieldErrors(errors);
 
-      return (
-        Object.keys(errors)
-          .length === 0
-      );
-    };
-
-  const clearFieldError = (
-    field: keyof FieldErrors,
-  ) => {
-    setFieldErrors(
-      (currentErrors) => {
-        const updatedErrors = {
-          ...currentErrors,
-        };
-
-        delete updatedErrors[
-          field
-        ];
-
-        return updatedErrors;
-      },
-    );
+    return Object.keys(errors).length === 0;
   };
 
-  const handleSubmitItem =
-    async (
-      event:
-        React.FormEvent<HTMLFormElement>,
-    ) => {
-      event.preventDefault();
+  const clearFieldError = (field: keyof FieldErrors) => {
+    setFieldErrors((currentErrors) => {
+      const updatedErrors = {
+        ...currentErrors,
+      };
 
-      if (!validateFields()) {
-        return;
-      }
+      delete updatedErrors[field];
 
-      if (!id) {
-        const message =
-          "Shopping list could not be found.";
+      return updatedErrors;
+    });
+  };
 
-        dispatch(
-          setItemError(message),
-        );
+  const handleSubmitItem = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
 
-        showToast(
-          message,
-          "error",
-        );
+    if (!validateFields()) {
+      return;
+    }
 
-        return;
-      }
+    if (!id) {
+      const message = "Shopping list could not be found.";
 
-      try {
-        dispatch(
-          setItemError(null),
-        );
+      dispatch(setItemError(message));
 
-        if (editingItemId) {
-          const existingItem =
-            items.find(
-              (item) =>
-                item.id ===
-                editingItemId,
-            );
+      showToast(message, "error");
 
-          if (!existingItem) {
-            const message =
-              "Item could not be found.";
+      return;
+    }
 
-            dispatch(
-              setItemError(
-                message,
-              ),
-            );
+    const normalizedItemName = itemName.trim().toLowerCase();
 
-            showToast(
-              message,
-              "error",
-            );
+    const duplicateItem = items.find(
+      (item) =>
+        item.name.trim().toLowerCase() === normalizedItemName &&
+        item.id !== editingItemId,
+    );
 
-            return;
-          }
+    if (duplicateItem) {
+      const message =
+        `"${duplicateItem.name}" is already in this shopping list. ` +
+        "Please edit the existing item and increase its quantity.";
 
-          let imageUrl =
-            existingItem.imageUrl;
+      dispatch(setItemError(null));
 
-          let unsplashPhotoId =
-            existingItem.unsplashPhotoId;
+      showToast(message, "warning");
 
-          let photographerName =
-            existingItem.photographerName;
+      return;
+    }
 
-          let photographerProfileUrl =
-            existingItem.photographerProfileUrl;
+    try {
+      dispatch(setItemError(null));
 
-          if (
-            itemName
-              .trim()
-              .toLowerCase() !==
-            existingItem.name
-              .trim()
-              .toLowerCase()
-          ) {
-            setImageLoading(true);
+      if (editingItemId) {
+        const existingItem = items.find((item) => item.id === editingItemId);
 
-            try {
-              const image =
-                await searchUnsplashImage(
-                  itemName.trim(),
-                );
+        if (!existingItem) {
+          const message = "Item could not be found.";
 
-              if (image) {
-                imageUrl =
-                  image.imageUrl;
+          dispatch(setItemError(message));
 
-                unsplashPhotoId =
-                  image.unsplashPhotoId;
-
-                photographerName =
-                  image.photographerName;
-
-                photographerProfileUrl =
-                  image.photographerProfileUrl;
-              }
-            } catch (error) {
-              console.error(
-                "Unable to find an updated image:",
-                error,
-              );
-            } finally {
-              setImageLoading(
-                false,
-              );
-            }
-          }
-
-          const updatedItem = {
-            ...existingItem,
-
-            name:
-              itemName.trim(),
-
-            quantity,
-
-            category:
-              category.trim(),
-
-            imageUrl,
-
-            unsplashPhotoId,
-
-            photographerName,
-
-            photographerProfileUrl,
-          };
-
-          const savedItem =
-            await updateShoppingItem(
-              editingItemId,
-              updatedItem,
-            );
-
-          dispatch(
-            updateItem(
-              savedItem,
-            ),
-          );
-
-          showToast(
-            `"${savedItem.name}" updated successfully.`,
-            "success",
-          );
-
-          setEditingItemId(
-            null,
-          );
-
-          setItemName("");
-          setQuantity(1);
-          setCategory("");
-          setFieldErrors({});
+          showToast(message, "error");
 
           return;
         }
 
-        setImageLoading(true);
+        let imageUrl = existingItem.imageUrl;
 
-        let image = null;
+        let unsplashPhotoId = existingItem.unsplashPhotoId;
 
-        try {
-          image =
-            await searchUnsplashImage(
-              itemName.trim(),
-            );
-        } catch (error) {
-          console.error(
-            "Unable to find item image:",
-            error,
-          );
-        } finally {
-          setImageLoading(false);
+        let photographerName = existingItem.photographerName;
+
+        let photographerProfileUrl = existingItem.photographerProfileUrl;
+
+        if (
+          itemName.trim().toLowerCase() !==
+          existingItem.name.trim().toLowerCase()
+        ) {
+          setImageLoading(true);
+
+          try {
+            const image = await searchUnsplashImage(itemName.trim());
+
+            if (image) {
+              imageUrl = image.imageUrl;
+
+              unsplashPhotoId = image.unsplashPhotoId;
+
+              photographerName = image.photographerName;
+
+              photographerProfileUrl = image.photographerProfileUrl;
+            }
+          } catch (error) {
+            console.error("Unable to find an updated image:", error);
+          } finally {
+            setImageLoading(false);
+          }
         }
 
-        const newItem = {
-          listId: id,
+        const updatedItem = {
+          ...existingItem,
 
-          name:
-            itemName.trim(),
+          name: itemName.trim(),
 
           quantity,
 
-          category:
-            category.trim(),
+          category: category.trim(),
 
-          completed: false,
+          imageUrl,
 
-          createdAt:
-            new Date().toISOString(),
+          unsplashPhotoId,
 
-          imageUrl:
-            image?.imageUrl,
+          photographerName,
 
-          unsplashPhotoId:
-            image?.unsplashPhotoId,
-
-          photographerName:
-            image?.photographerName,
-
-          photographerProfileUrl:
-            image?.photographerProfileUrl,
+          photographerProfileUrl,
         };
 
-        const createdItem =
-          await createShoppingItem(
-            newItem,
-          );
+        const savedItem = await updateShoppingItem(editingItemId, updatedItem);
 
-        dispatch(
-          addItem(
-            createdItem,
-          ),
-        );
+        dispatch(updateItem(savedItem));
 
-        showToast(
-          `"${createdItem.name}" added successfully.`,
-          "success",
-        );
+        showToast(`"${savedItem.name}" updated successfully.`, "success");
+
+        setEditingItemId(null);
 
         setItemName("");
         setQuantity(1);
         setCategory("");
         setFieldErrors({});
+
+        return;
+      }
+
+      setImageLoading(true);
+
+      let image = null;
+
+      try {
+        image = await searchUnsplashImage(itemName.trim());
       } catch (error) {
-        console.error(
-          "Unable to save shopping item:",
-          error,
-        );
-
-        const message =
-          editingItemId
-            ? "Unable to update shopping item."
-            : "Unable to add shopping item.";
-
-        dispatch(
-          setItemError(
-            message,
-          ),
-        );
-
-        showToast(
-          message,
-          "error",
-        );
+        console.error("Unable to find item image:", error);
       } finally {
         setImageLoading(false);
       }
-    };
 
-  const handleEditItem = (
-    item: ShoppingItem,
-  ) => {
-    setEditingItemId(
-      item.id,
-    );
+      const newItem = {
+        listId: id,
 
-    setItemName(
-      item.name,
-    );
+        name: itemName.trim(),
 
-    setQuantity(
-      item.quantity,
-    );
+        quantity,
 
-    setCategory(
-      item.category,
-    );
+        category: category.trim(),
+
+        completed: false,
+
+        createdAt: new Date().toISOString(),
+
+        imageUrl: image?.imageUrl,
+
+        unsplashPhotoId: image?.unsplashPhotoId,
+
+        photographerName: image?.photographerName,
+
+        photographerProfileUrl: image?.photographerProfileUrl,
+      };
+
+      const createdItem = await createShoppingItem(newItem);
+
+      dispatch(addItem(createdItem));
+
+      showToast(`"${createdItem.name}" added successfully.`, "success");
+
+      setItemName("");
+      setQuantity(1);
+      setCategory("");
+      setFieldErrors({});
+    } catch (error) {
+      console.error("Unable to save shopping item:", error);
+
+      const message = editingItemId
+        ? "Unable to update shopping item."
+        : "Unable to add shopping item.";
+
+      dispatch(setItemError(message));
+
+      showToast(message, "error");
+    } finally {
+      setImageLoading(false);
+    }
+  };
+
+  const handleEditItem = (item: ShoppingItem) => {
+    setEditingItemId(item.id);
+
+    setItemName(item.name);
+
+    setQuantity(item.quantity);
+
+    setCategory(item.category);
 
     setFieldErrors({});
 
@@ -604,252 +360,120 @@ function ShoppingList() {
     setFieldErrors({});
   };
 
-  const handleDeleteItem = (
-    item: ShoppingItem,
-  ) => {
-    setDeleteTarget(
-      item,
-    );
+  const handleDeleteItem = (item: ShoppingItem) => {
+    setDeleteTarget(item);
   };
 
-  const confirmDeleteItem =
-    async () => {
-      if (!deleteTarget) {
-        return;
+  const confirmDeleteItem = async () => {
+    if (!deleteTarget) {
+      return;
+    }
+
+    try {
+      setDeletingItemId(deleteTarget.id);
+
+      dispatch(setItemError(null));
+
+      await deleteShoppingItem(deleteTarget.id);
+
+      dispatch(deleteItem(deleteTarget.id));
+
+      if (editingItemId === deleteTarget.id) {
+        handleCancelEdit();
       }
 
-      try {
-        setDeletingItemId(
-          deleteTarget.id,
-        );
+      showToast(`"${deleteTarget.name}" deleted successfully.`, "success");
 
-        dispatch(
-          setItemError(null),
-        );
+      setDeleteTarget(null);
+    } catch (error) {
+      console.error("Unable to delete shopping item:", error);
 
-        await deleteShoppingItem(
-          deleteTarget.id,
-        );
+      const message = "Unable to delete shopping item.";
 
-        dispatch(
-          deleteItem(
-            deleteTarget.id,
-          ),
-        );
+      dispatch(setItemError(message));
 
-        if (
-          editingItemId ===
-          deleteTarget.id
-        ) {
-          handleCancelEdit();
-        }
+      showToast(message, "error");
+    } finally {
+      setDeletingItemId(null);
+    }
+  };
 
-        showToast(
-          `"${deleteTarget.name}" deleted successfully.`,
-          "success",
-        );
+  const handleToggleComplete = async (item: ShoppingItem) => {
+    try {
+      dispatch(setItemError(null));
 
-        setDeleteTarget(
-          null,
-        );
-      } catch (error) {
-        console.error(
-          "Unable to delete shopping item:",
-          error,
-        );
+      const updatedItem = {
+        ...item,
 
-        const message =
-          "Unable to delete shopping item.";
+        completed: !item.completed,
+      };
 
-        dispatch(
-          setItemError(
-            message,
-          ),
-        );
+      const savedItem = await updateShoppingItem(item.id, updatedItem);
 
-        showToast(
-          message,
-          "error",
-        );
-      } finally {
-        setDeletingItemId(
-          null,
-        );
+      dispatch(updateItem(savedItem));
+
+      if (savedItem.completed) {
+        showToast(`"${savedItem.name}" marked as completed.`, "success");
+      } else {
+        showToast(`"${savedItem.name}" marked as pending.`, "info");
       }
-    };
+    } catch (error) {
+      console.error("Unable to update shopping item status:", error);
 
-  const handleToggleComplete =
-    async (
-      item: ShoppingItem,
-    ) => {
-      try {
-        dispatch(
-          setItemError(null),
-        );
+      const message = "Unable to update item status.";
 
-        const updatedItem = {
-          ...item,
+      dispatch(setItemError(message));
 
-          completed:
-            !item.completed,
-        };
+      showToast(message, "error");
+    }
+  };
 
-        const savedItem =
-          await updateShoppingItem(
-            item.id,
-            updatedItem,
-          );
+  const filteredAndSortedItems = useMemo(() => {
+    let filteredItems = [...items];
 
-        dispatch(
-          updateItem(
-            savedItem,
-          ),
-        );
+    if (searchTerm.trim()) {
+      const search = searchTerm.trim().toLowerCase();
 
-        if (
-          savedItem.completed
-        ) {
-          showToast(
-            `"${savedItem.name}" marked as completed.`,
-            "success",
-          );
-        } else {
-          showToast(
-            `"${savedItem.name}" marked as pending.`,
-            "info",
-          );
-        }
-      } catch (error) {
-        console.error(
-          "Unable to update shopping item status:",
-          error,
-        );
+      filteredItems = filteredItems.filter(
+        (item) =>
+          item.name.toLowerCase().includes(search) ||
+          item.category.toLowerCase().includes(search),
+      );
+    }
 
-        const message =
-          "Unable to update item status.";
+    if (sortOption === "name") {
+      filteredItems.sort((a, b) => a.name.localeCompare(b.name));
+    }
 
-        dispatch(
-          setItemError(
-            message,
-          ),
-        );
+    if (sortOption === "category") {
+      filteredItems.sort((a, b) => a.category.localeCompare(b.category));
+    }
 
-        showToast(
-          message,
-          "error",
-        );
-      }
-    };
+    if (sortOption === "completed") {
+      filteredItems.sort((a, b) => Number(a.completed) - Number(b.completed));
+    }
 
-  const filteredAndSortedItems =
-    useMemo(() => {
-      let filteredItems = [
-        ...items,
-      ];
+    if (sortOption === "newest") {
+      filteredItems.sort(
+        (a, b) =>
+          new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
+      );
+    }
 
-      if (
-        searchTerm.trim()
-      ) {
-        const search =
-          searchTerm.toLowerCase();
+    if (sortOption === "oldest") {
+      filteredItems.sort(
+        (a, b) =>
+          new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime(),
+      );
+    }
 
-        filteredItems =
-          filteredItems.filter(
-            (item) =>
-              item.name
-                .toLowerCase()
-                .includes(
-                  search,
-                ) ||
-              item.category
-                .toLowerCase()
-                .includes(
-                  search,
-                ),
-          );
-      }
-
-      if (
-        sortOption === "name"
-      ) {
-        filteredItems.sort(
-          (a, b) =>
-            a.name.localeCompare(
-              b.name,
-            ),
-        );
-      }
-
-      if (
-        sortOption ===
-        "category"
-      ) {
-        filteredItems.sort(
-          (a, b) =>
-            a.category.localeCompare(
-              b.category,
-            ),
-        );
-      }
-
-      if (
-        sortOption ===
-        "completed"
-      ) {
-        filteredItems.sort(
-          (a, b) =>
-            Number(
-              a.completed,
-            ) -
-            Number(
-              b.completed,
-            ),
-        );
-      }
-
-      if (
-        sortOption ===
-        "newest"
-      ) {
-        filteredItems.sort(
-          (a, b) =>
-            new Date(
-              b.createdAt,
-            ).getTime() -
-            new Date(
-              a.createdAt,
-            ).getTime(),
-        );
-      }
-
-      if (
-        sortOption ===
-        "oldest"
-      ) {
-        filteredItems.sort(
-          (a, b) =>
-            new Date(
-              a.createdAt,
-            ).getTime() -
-            new Date(
-              b.createdAt,
-            ).getTime(),
-        );
-      }
-
-      return filteredItems;
-    }, [
-      items,
-      searchTerm,
-      sortOption,
-    ]);
+    return filteredItems;
+  }, [items, searchTerm, sortOption]);
 
   if (listLoading) {
     return (
       <main className="shopping-list-page">
-        <p>
-          Loading shopping list...
-        </p>
+        <p>Loading shopping list...</p>
       </main>
     );
   }
@@ -858,18 +482,11 @@ function ShoppingList() {
     return (
       <main className="shopping-list-page">
         <section className="error-state">
-          <h1>
-            Something went wrong
-          </h1>
+          <h1>Something went wrong</h1>
 
-          <p>
-            {listError}
-          </p>
+          <p>{listError}</p>
 
-          <Link
-            to="/home"
-            className="button button-primary"
-          >
+          <Link to="/home" className="button button-primary">
             Back to Shopping Lists
           </Link>
         </section>
@@ -881,18 +498,11 @@ function ShoppingList() {
     return (
       <main className="shopping-list-page">
         <section className="empty-state">
-          <h1>
-            Shopping List Not Found
-          </h1>
+          <h1>Shopping List Not Found</h1>
 
-          <p>
-            The shopping list you're looking for does not exist.
-          </p>
+          <p>The shopping list you're looking for does not exist.</p>
 
-          <Link
-            to="/home"
-            className="button button-primary"
-          >
+          <Link to="/home" className="button button-primary">
             Back to Shopping Lists
           </Link>
         </section>
@@ -902,126 +512,63 @@ function ShoppingList() {
 
   return (
     <main className="shopping-list-page">
-
       <section className="shopping-list-header">
-
-        <Link
-          to="/home"
-          className="back-link"
-        >
+        <Link to="/home" className="back-link">
           ← Back to Shopping Lists
         </Link>
 
         <div className="shopping-list-heading">
-
           <span className="shopping-list-category">
-            {
-              shoppingList.category
-            }
+            {shoppingList.category}
           </span>
 
-          <h1>
-            {
-              shoppingList.name
-            }
-          </h1>
+          <h1>{shoppingList.name}</h1>
 
-          {shoppingList.notes && (
-            <p>
-              {
-                shoppingList.notes
-              }
-            </p>
-          )}
-
+          {shoppingList.notes && <p>{shoppingList.notes}</p>}
         </div>
-
       </section>
 
-
       <section className="add-item-section">
-
         <div className="section-header">
-
-          <h2>
-            {editingItemId
-              ? "Edit Shopping Item"
-              : "Add Shopping Item"}
-          </h2>
+          <h2>{editingItemId ? "Edit Shopping Item" : "Add Shopping Item"}</h2>
 
           <p>
             {editingItemId
               ? "Update the information for this item."
               : "Add an item to this shopping list."}
           </p>
-
         </div>
 
-        <form
-          className="add-item-form"
-          onSubmit={
-            handleSubmitItem
-          }
-        >
-
+        <form className="add-item-form" onSubmit={handleSubmitItem}>
           <div className="form-group">
-
-            <label htmlFor="itemName">
-              Item Name
-            </label>
+            <label htmlFor="itemName">Item Name</label>
 
             <input
               id="itemName"
               type="text"
               value={itemName}
               onChange={(event) => {
-                setItemName(
-                  event.target.value,
-                );
+                setItemName(event.target.value);
 
-                if (
-                  event.target.value.trim()
-                ) {
-                  clearFieldError(
-                    "itemName",
-                  );
+                if (event.target.value.trim()) {
+                  clearFieldError("itemName");
                 }
               }}
               placeholder="e.g. Milk"
-              className={
-                fieldErrors.itemName
-                  ? "input-error"
-                  : ""
-              }
+              className={fieldErrors.itemName ? "input-error" : ""}
             />
 
             {fieldErrors.itemName && (
               <div className="inline-toast inline-toast-error">
+                <HugeiconsIcon icon={AlertCircleIcon} size={16} />
 
-                <HugeiconsIcon
-                  icon={
-                    AlertCircleIcon
-                  }
-                  size={16}
-                />
-
-                <span>
-                  {
-                    fieldErrors.itemName
-                  }
-                </span>
-
+                <span>{fieldErrors.itemName}</span>
               </div>
             )}
-
           </div>
 
-
           <div className="form-group">
-
-            <label htmlFor="quantity">
-              Quantity
-            </label>
+            <label htmlFor="quantity">Quantity</label>
 
             <input
               id="quantity"
@@ -1029,111 +576,58 @@ function ShoppingList() {
               min="1"
               value={quantity}
               onChange={(event) => {
-                const value =
-                  Number(
-                    event.target.value,
-                  );
+                const value = Number(event.target.value);
 
-                setQuantity(
-                  value,
-                );
+                setQuantity(value);
 
                 if (value >= 1) {
-                  clearFieldError(
-                    "quantity",
-                  );
+                  clearFieldError("quantity");
                 }
               }}
-              className={
-                fieldErrors.quantity
-                  ? "input-error"
-                  : ""
-              }
+              className={fieldErrors.quantity ? "input-error" : ""}
             />
 
             {fieldErrors.quantity && (
               <div className="inline-toast inline-toast-error">
+                <HugeiconsIcon icon={AlertCircleIcon} size={16} />
 
-                <HugeiconsIcon
-                  icon={
-                    AlertCircleIcon
-                  }
-                  size={16}
-                />
-
-                <span>
-                  {
-                    fieldErrors.quantity
-                  }
-                </span>
-
+                <span>{fieldErrors.quantity}</span>
               </div>
             )}
-
           </div>
 
-
           <div className="form-group">
-
-            <label htmlFor="category">
-              Category
-            </label>
+            <label htmlFor="category">Category</label>
 
             <input
               id="category"
               type="text"
               value={category}
               onChange={(event) => {
-                setCategory(
-                  event.target.value,
-                );
+                setCategory(event.target.value);
 
-                if (
-                  event.target.value.trim()
-                ) {
-                  clearFieldError(
-                    "category",
-                  );
+                if (event.target.value.trim()) {
+                  clearFieldError("category");
                 }
               }}
               placeholder="e.g. Dairy"
-              className={
-                fieldErrors.category
-                  ? "input-error"
-                  : ""
-              }
+              className={fieldErrors.category ? "input-error" : ""}
             />
 
             {fieldErrors.category && (
               <div className="inline-toast inline-toast-error">
+                <HugeiconsIcon icon={AlertCircleIcon} size={16} />
 
-                <HugeiconsIcon
-                  icon={
-                    AlertCircleIcon
-                  }
-                  size={16}
-                />
-
-                <span>
-                  {
-                    fieldErrors.category
-                  }
-                </span>
-
+                <span>{fieldErrors.category}</span>
               </div>
             )}
-
           </div>
 
-
           <div className="item-form-buttons">
-
             <button
               type="submit"
               className="button button-primary"
-              disabled={
-                imageLoading
-              }
+              disabled={imageLoading}
             >
               {imageLoading
                 ? "Finding image..."
@@ -1146,394 +640,201 @@ function ShoppingList() {
               <button
                 type="button"
                 className="button button-secondary"
-                onClick={
-                  handleCancelEdit
-                }
+                onClick={handleCancelEdit}
               >
                 Cancel
               </button>
             )}
-
           </div>
-
         </form>
-
       </section>
 
-
       <section className="shopping-items-section">
-
         <div className="section-header">
-
           <div>
-            <h2>
-              Shopping Items
-            </h2>
+            <h2>Shopping Items</h2>
 
             <p>
-              {items.length}{" "}
-              {items.length === 1
-                ? "item"
-                : "items"}{" "}
-              in this list.
+              {items.length} {items.length === 1 ? "item" : "items"} in this
+              list.
             </p>
           </div>
-
         </div>
-
 
         {items.length > 0 && (
           <div className="items-toolbar">
-
             <div className="search-container">
-
-              <label htmlFor="searchItems">
-                Search
-              </label>
+              <label htmlFor="searchItems">Search</label>
 
               <input
                 id="searchItems"
                 type="text"
                 value={searchTerm}
-                onChange={(
-                  event,
-                ) =>
-                  setSearchTerm(
-                    event.target.value,
-                  )
-                }
+                onChange={(event) => setSearchTerm(event.target.value)}
                 placeholder="Search items..."
               />
-
             </div>
 
-
             <div className="sort-container">
-
-              <label htmlFor="sortItems">
-                Sort by
-              </label>
+              <label htmlFor="sortItems">Sort by</label>
 
               <select
                 id="sortItems"
                 value={sortOption}
-                onChange={(
-                  event,
-                ) =>
-                  setSortOption(
-                    event.target.value,
-                  )
-                }
+                onChange={(event) => setSortOption(event.target.value)}
               >
-                <option value="newest">
-                  Newest
-                </option>
+                <option value="newest">Newest</option>
 
-                <option value="oldest">
-                  Oldest
-                </option>
+                <option value="oldest">Oldest</option>
 
-                <option value="name">
-                  Name
-                </option>
+                <option value="name">Name</option>
 
-                <option value="category">
-                  Category
-                </option>
+                <option value="category">Category</option>
 
-                <option value="completed">
-                  Completed
-                </option>
+                <option value="completed">Completed</option>
               </select>
-
             </div>
-
           </div>
         )}
 
+        {error && <p className="error-message">{error}</p>}
 
-        {error && (
-          <p className="error-message">
-            {error}
-          </p>
-        )}
+        {loading && <p>Loading shopping items...</p>}
 
-
-        {loading && (
-          <p>
-            Loading shopping items...
-          </p>
-        )}
-
-
-        {!loading &&
-          items.length === 0 && (
+        {!loading && items.length === 0 && (
           <section className="empty-state">
-
             <div className="empty-state-icon">
-
-              <HugeiconsIcon
-                icon={
-                  AlertCircleIcon
-                }
-                size={42}
-              />
-
+              <HugeiconsIcon icon={AlertCircleIcon} size={42} />
             </div>
 
-            <h2>
-              No items yet
-            </h2>
+            <h2>No items yet</h2>
 
-            <p>
-              Start adding items to your shopping list.
-            </p>
-
+            <p>Start adding items to your shopping list.</p>
           </section>
         )}
-
 
         {!loading &&
           items.length > 0 &&
-          filteredAndSortedItems.length ===
-            0 && (
-          <section className="empty-state">
+          filteredAndSortedItems.length === 0 && (
+            <section className="empty-state">
+              <h2>No items found</h2>
 
-            <h2>
-              No items found
-            </h2>
+              <p>Try using a different search term.</p>
+            </section>
+          )}
 
-            <p>
-              Try using a different search term.
-            </p>
-
-          </section>
-        )}
-
-
-        {!loading &&
-          filteredAndSortedItems.length >
-            0 && (
+        {!loading && filteredAndSortedItems.length > 0 && (
           <div className="shopping-items-list">
+            {filteredAndSortedItems.map((item) => (
+              <article
+                className={`shopping-item ${
+                  item.completed ? "shopping-item-completed" : ""
+                }`}
+                key={item.id}
+              >
+                <div className="shopping-item-check">
+                  <input
+                    type="checkbox"
+                    checked={item.completed}
+                    onChange={() => handleToggleComplete(item)}
+                    aria-label={`Mark ${item.name} as ${
+                      item.completed ? "incomplete" : "complete"
+                    }`}
+                  />
+                </div>
 
-            {filteredAndSortedItems.map(
-              (item) => (
-                <article
-                  className={`shopping-item ${
-                    item.completed
-                      ? "shopping-item-completed"
-                      : ""
-                  }`}
-                  key={item.id}
-                >
-
-                  <div className="shopping-item-check">
-
-                    <input
-                      type="checkbox"
-                      checked={
-                        item.completed
-                      }
-                      onChange={() =>
-                        handleToggleComplete(
-                          item,
-                        )
-                      }
-                      aria-label={`Mark ${item.name} as ${
-                        item.completed
-                          ? "incomplete"
-                          : "complete"
-                      }`}
+                <div className="shopping-item-image-wrapper">
+                  {item.imageUrl ? (
+                    <img
+                      src={item.imageUrl}
+                      alt={item.name}
+                      className="shopping-item-image"
                     />
-
-                  </div>
-
-
-                  <div className="shopping-item-image-wrapper">
-
-                    {item.imageUrl ? (
-                      <img
-                        src={
-                          item.imageUrl
-                        }
-                        alt={
-                          item.name
-                        }
-                        className="shopping-item-image"
-                      />
-                    ) : (
-                      <div className="shopping-item-image-placeholder">
-
-                        <HugeiconsIcon
-                          icon={
-                            AlertCircleIcon
-                          }
-                          size={25}
-                        />
-
-                      </div>
-                    )}
-
-                  </div>
-
-
-                  <div className="shopping-item-info">
-
-                    <h3>
-                      {
-                        item.name
-                      }
-                    </h3>
-
-                    <div className="shopping-item-details">
-
-                      <span>
-                        Quantity:{" "}
-                        {
-                          item.quantity
-                        }
-                      </span>
-
-                      <span>
-                        {
-                          item.category
-                        }
-                      </span>
-
+                  ) : (
+                    <div className="shopping-item-image-placeholder">
+                      <HugeiconsIcon icon={AlertCircleIcon} size={25} />
                     </div>
+                  )}
+                </div>
 
+                <div className="shopping-item-info">
+                  <h3>{item.name}</h3>
+
+                  <div className="shopping-item-details">
+                    <span>Quantity: {item.quantity}</span>
+
+                    <span>{item.category}</span>
                   </div>
+                </div>
 
+                <div className="shopping-item-status">
+                  {item.completed ? (
+                    <span className="status-complete">Complete</span>
+                  ) : (
+                    <span className="status-pending">Pending</span>
+                  )}
+                </div>
 
-                  <div className="shopping-item-status">
+                <div className="shopping-item-actions">
+                  <button
+                    type="button"
+                    className="button button-secondary button-small"
+                    onClick={() => handleEditItem(item)}
+                  >
+                    Edit
+                  </button>
 
-                    {item.completed ? (
-                      <span className="status-complete">
-                        Complete
-                      </span>
-                    ) : (
-                      <span className="status-pending">
-                        Pending
-                      </span>
-                    )}
-
-                  </div>
-
-
-                  <div className="shopping-item-actions">
-
-                    <button
-                      type="button"
-                      className="button button-secondary button-small"
-                      onClick={() =>
-                        handleEditItem(
-                          item,
-                        )
-                      }
-                    >
-                      Edit
-                    </button>
-
-                    <button
-                      type="button"
-                      className="button button-danger button-small"
-                      onClick={() =>
-                        handleDeleteItem(
-                          item,
-                        )
-                      }
-                    >
-                      Delete
-                    </button>
-
-                  </div>
-
-                </article>
-              ),
-            )}
-
+                  <button
+                    type="button"
+                    className="button button-danger button-small"
+                    onClick={() => handleDeleteItem(item)}
+                  >
+                    Delete
+                  </button>
+                </div>
+              </article>
+            ))}
           </div>
         )}
-
       </section>
-
 
       {deleteTarget && (
         <div
           className="modal-overlay"
           onClick={() => {
             if (!deletingItemId) {
-              setDeleteTarget(
-                null,
-              );
+              setDeleteTarget(null);
             }
           }}
         >
-
           <section
             className="delete-modal"
             role="dialog"
             aria-modal="true"
             aria-labelledby="delete-item-modal-title"
-            onClick={(
-              event,
-            ) =>
-              event.stopPropagation()
-            }
+            onClick={(event) => event.stopPropagation()}
           >
-
             <div className="delete-modal-icon">
-
-              <HugeiconsIcon
-                icon={
-                  AlertCircleIcon
-                }
-                size={28}
-              />
-
+              <HugeiconsIcon icon={AlertCircleIcon} size={28} />
             </div>
-
 
             <div className="delete-modal-content">
-
-              <h2 id="delete-item-modal-title">
-                Delete Shopping Item?
-              </h2>
+              <h2 id="delete-item-modal-title">Delete Shopping Item?</h2>
 
               <p>
-                Are you sure you want
-                to delete{" "}
-                <strong>
-                  "
-                  {
-                    deleteTarget.name
-                  }
-                  "
-                </strong>
-                ?
+                Are you sure you want to delete{" "}
+                <strong>"{deleteTarget.name}"</strong>?
               </p>
 
-              <span>
-                This action cannot be
-                undone.
-              </span>
-
+              <span>This action cannot be undone.</span>
             </div>
 
-
             <div className="delete-modal-actions">
-
               <button
                 type="button"
                 className="button button-secondary"
-                onClick={() =>
-                  setDeleteTarget(
-                    null,
-                  )
-                }
-                disabled={Boolean(
-                  deletingItemId,
-                )}
+                onClick={() => setDeleteTarget(null)}
+                disabled={Boolean(deletingItemId)}
               >
                 Cancel
               </button>
@@ -1541,36 +842,17 @@ function ShoppingList() {
               <button
                 type="button"
                 className="button button-danger"
-                onClick={
-                  confirmDeleteItem
-                }
-                disabled={Boolean(
-                  deletingItemId,
-                )}
+                onClick={confirmDeleteItem}
+                disabled={Boolean(deletingItemId)}
               >
+                <HugeiconsIcon icon={Delete02Icon} size={18} />
 
-                <HugeiconsIcon
-                  icon={
-                    Delete02Icon
-                  }
-                  size={18}
-                />
-
-                <span>
-                  {deletingItemId
-                    ? "Deleting..."
-                    : "Delete Item"}
-                </span>
-
+                <span>{deletingItemId ? "Deleting..." : "Delete Item"}</span>
               </button>
-
             </div>
-
           </section>
-
         </div>
       )}
-
     </main>
   );
 }
