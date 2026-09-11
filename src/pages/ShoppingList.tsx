@@ -6,7 +6,7 @@ import { AlertCircleIcon, Delete02Icon } from "@hugeicons/core-free-icons";
 import type { AppDispatch, RootState } from "../store/store";
 import type { ShoppingItem, ShoppingList as ShoppingListType } from "../types";
 import { setItems, addItem, updateItem, deleteItem, setItemLoading, setItemError,} from "../store/slices/ShoppingItemsSlice";
-import {getShoppingList, getShoppingItems, createShoppingItem, updateShoppingItem, deleteShoppingItem,} from "../services/api";
+import { getShoppingList, getShoppingItems, createShoppingItem, updateShoppingItem, deleteShoppingItem,} from "../services/api";
 import { searchUnsplashImage } from "../services/unsplash";
 import useToast from "../hooks/useToast";
 
@@ -16,8 +16,254 @@ type FieldErrors = {
   category?: string;
 };
 
+type CategoryRule = {
+  keywords: string[];
+  category: string;
+  acceptedCategories: string[];
+};
+
+const categoryRules: CategoryRule[] = [
+  {
+    keywords: [
+      "bread",
+      "roll",
+      "rolls",
+      "bun",
+      "buns",
+      "cake",
+      "cakes",
+      "muffin",
+      "muffins",
+      "croissant",
+      "pastry",
+      "pastries",
+      "bagel",
+      "bagels",
+    ],
+    category: "Bakery",
+    acceptedCategories: ["bakery", "groceries", "grocery", "food"],
+  },
+
+  {
+    keywords: ["milk", "cheese", "yogurt", "yoghurt", "butter", "cream"],
+    category: "Dairy",
+    acceptedCategories: ["dairy", "groceries", "grocery", "food"],
+  },
+
+  {
+    keywords: [
+      "apple",
+      "apples",
+      "banana",
+      "bananas",
+      "orange",
+      "oranges",
+      "grape",
+      "grapes",
+      "strawberry",
+      "strawberries",
+      "mango",
+      "mangoes",
+      "pear",
+      "pears",
+      "watermelon",
+      "pineapple",
+    ],
+    category: "Fruit",
+    acceptedCategories: [
+      "fruit",
+      "fruits",
+      "produce",
+      "groceries",
+      "grocery",
+      "food",
+    ],
+  },
+
+  {
+    keywords: [
+      "carrot",
+      "carrots",
+      "potato",
+      "potatoes",
+      "tomato",
+      "tomatoes",
+      "onion",
+      "onions",
+      "cabbage",
+      "spinach",
+      "lettuce",
+      "broccoli",
+      "pepper",
+      "peppers",
+    ],
+    category: "Vegetables",
+    acceptedCategories: [
+      "vegetable",
+      "vegetables",
+      "produce",
+      "groceries",
+      "grocery",
+      "food",
+    ],
+  },
+
+  {
+    keywords: [
+      "beef",
+      "chicken",
+      "pork",
+      "steak",
+      "sausage",
+      "sausages",
+      "mince",
+      "meat",
+    ],
+    category: "Meat",
+    acceptedCategories: ["meat", "groceries", "grocery", "food"],
+  },
+
+  {
+    keywords: ["fish", "salmon", "tuna", "prawns", "shrimp", "seafood"],
+    category: "Seafood",
+    acceptedCategories: ["seafood", "fish", "groceries", "grocery", "food"],
+  },
+
+  {
+    keywords: [
+      "rice",
+      "pasta",
+      "flour",
+      "sugar",
+      "salt",
+      "cereal",
+      "oats",
+      "beans",
+      "lentils",
+    ],
+    category: "Groceries",
+    acceptedCategories: ["groceries", "grocery", "food", "pantry"],
+  },
+
+  {
+    keywords: [
+      "juice",
+      "water",
+      "soda",
+      "cooldrink",
+      "cool drink",
+      "coffee",
+      "tea",
+      "drink",
+    ],
+    category: "Beverages",
+    acceptedCategories: [
+      "beverage",
+      "beverages",
+      "drinks",
+      "drink",
+      "groceries",
+      "grocery",
+      "food",
+    ],
+  },
+
+  {
+    keywords: [
+      "chips",
+      "crisps",
+      "chocolate",
+      "candy",
+      "sweets",
+      "biscuits",
+      "cookies",
+      "snack",
+      "snacks",
+    ],
+    category: "Snacks",
+    acceptedCategories: ["snack", "snacks", "groceries", "grocery", "food"],
+  },
+
+  {
+    keywords: [
+      "soap",
+      "toothpaste",
+      "toothbrush",
+      "shampoo",
+      "conditioner",
+      "deodorant",
+      "lotion",
+      "body wash",
+    ],
+    category: "Personal Care",
+    acceptedCategories: [
+      "personal care",
+      "hygiene",
+      "toiletries",
+      "health",
+      "beauty",
+    ],
+  },
+
+  {
+    keywords: ["detergent", "bleach","dishwashing liquid", "dish soap", "cleaner", "cleaning spray", "washing powder", "fabric softener", ],
+    category: "Cleaning",
+    acceptedCategories: ["cleaning", "household", "home"],
+  },
+
+  {
+    keywords: ["phone", "smartphone","laptop", "computer","tablet", "television", "tv","headphones","earphones", "charger", "mouse","keyboard", "camera",],
+    category: "Electronics",
+    acceptedCategories: ["electronics", "technology", "tech"],
+  },
+
+  {
+    keywords: ["shirt", "tshirt", "t-shirt", "jeans", "dress","jacket", "shoes", "sneakers","clothes", "clothing",],
+    category: "Clothing",
+    acceptedCategories: ["clothing", "clothes", "fashion", "apparel"],
+  },
+
+  {
+    keywords: [ "car", "vehicle", "tyre", "tire", "engine oil","car battery", "windscreen", ],
+    category: "Automotive",
+    acceptedCategories: ["automotive", "cars", "car", "vehicles", "vehicle"],
+  },
+
+  {
+    keywords: [ "pen", "pencil", "notebook", "book", "ruler", "eraser", "stapler", "paper",],
+    category: "Stationery",
+    acceptedCategories: ["stationery", "school", "office", "office supplies"],
+  },
+];
+
+function normalizeText(value: string) {
+  return value.trim().toLowerCase().replace(/\s+/g, " ");
+}
+
+function findCategoryRule(itemName: string): CategoryRule | null {
+  const normalizedItem = normalizeText(itemName);
+
+  const words = normalizedItem.split(" ");
+
+  const rule = categoryRules.find((categoryRule) =>
+    categoryRule.keywords.some((keyword) => {
+      const normalizedKeyword = normalizeText(keyword);
+
+      if (normalizedKeyword.includes(" ")) {
+        return normalizedItem.includes(normalizedKeyword);
+      }
+
+      return words.includes(normalizedKeyword);
+    }),
+  );
+
+  return rule || null;
+}
+
 function ShoppingList() {
-  const { id } = useParams<{ id: string }>();
+  const { id } = useParams<{
+    id: string;
+  }>();
 
   const dispatch = useDispatch<AppDispatch>();
 
@@ -71,6 +317,7 @@ function ShoppingList() {
 
       try {
         setListLoading(true);
+
         setListError(null);
 
         dispatch(setItemLoading(true));
@@ -91,7 +338,14 @@ function ShoppingList() {
           return;
         }
 
-        if (list.userId !== user.id) {
+        const isOwner = list.userId === user.id;
+
+        const isSharedWithUser = list.sharedWith?.some(
+          (sharedEmail: string) =>
+            sharedEmail.toLowerCase() === user.email.toLowerCase(),
+        );
+
+        if (!isOwner && !isSharedWithUser) {
           setListError("You do not have access to this shopping list.");
 
           return;
@@ -140,6 +394,39 @@ function ShoppingList() {
     return Object.keys(errors).length === 0;
   };
 
+  const validateItemCategory = (): boolean => {
+    const rule = findCategoryRule(itemName);
+
+    if (!rule) {
+      return true;
+    }
+
+    const normalizedCategory = normalizeText(category);
+
+    const categoryMatches = rule.acceptedCategories.some(
+      (acceptedCategory) =>
+        normalizeText(acceptedCategory) === normalizedCategory,
+    );
+
+    if (categoryMatches) {
+      return true;
+    }
+
+    const message =
+      `"${itemName.trim()}" does not match the ` +
+      `"${category.trim()}" category. ` +
+      `Try "${rule.category}" instead.`;
+
+    setFieldErrors((currentErrors) => ({
+      ...currentErrors,
+      category: "invalid-category",
+    }));
+
+    showToast(message, "warning");
+
+    return false;
+  };
+
   const clearFieldError = (field: keyof FieldErrors) => {
     setFieldErrors((currentErrors) => {
       const updatedErrors = {
@@ -159,6 +446,10 @@ function ShoppingList() {
       return;
     }
 
+    if (!validateItemCategory()) {
+      return;
+    }
+
     if (!id) {
       const message = "Shopping list could not be found.";
 
@@ -169,11 +460,11 @@ function ShoppingList() {
       return;
     }
 
-    const normalizedItemName = itemName.trim().toLowerCase();
+    const normalizedItemName = normalizeText(itemName);
 
     const duplicateItem = items.find(
       (item) =>
-        item.name.trim().toLowerCase() === normalizedItemName &&
+        normalizeText(item.name) === normalizedItemName &&
         item.id !== editingItemId,
     );
 
@@ -213,14 +504,19 @@ function ShoppingList() {
 
         let photographerProfileUrl = existingItem.photographerProfileUrl;
 
-        if (
-          itemName.trim().toLowerCase() !==
-          existingItem.name.trim().toLowerCase()
-        ) {
+        const nameChanged =
+          normalizeText(itemName) !== normalizeText(existingItem.name);
+
+        const categoryChanged =
+          normalizeText(category) !== normalizeText(existingItem.category);
+
+        if (nameChanged || categoryChanged) {
           setImageLoading(true);
 
           try {
-            const image = await searchUnsplashImage(itemName.trim());
+            const image = await searchUnsplashImage(
+              `${itemName.trim()} ${category.trim()}`,
+            );
 
             if (image) {
               imageUrl = image.imageUrl;
@@ -265,8 +561,11 @@ function ShoppingList() {
         setEditingItemId(null);
 
         setItemName("");
+
         setQuantity(1);
+
         setCategory("");
+
         setFieldErrors({});
 
         return;
@@ -277,7 +576,9 @@ function ShoppingList() {
       let image = null;
 
       try {
-        image = await searchUnsplashImage(itemName.trim());
+        image = await searchUnsplashImage(
+          `${itemName.trim()} ${category.trim()}`,
+        );
       } catch (error) {
         console.error("Unable to find item image:", error);
       } finally {
@@ -313,8 +614,11 @@ function ShoppingList() {
       showToast(`"${createdItem.name}" added successfully.`, "success");
 
       setItemName("");
+
       setQuantity(1);
+
       setCategory("");
+
       setFieldErrors({});
     } catch (error) {
       console.error("Unable to save shopping item:", error);
@@ -552,9 +856,11 @@ function ShoppingList() {
 
                 if (event.target.value.trim()) {
                   clearFieldError("itemName");
+
+                  clearFieldError("category");
                 }
               }}
-              placeholder="e.g. Milk"
+              placeholder="e.g. Bread"
               className={fieldErrors.itemName ? "input-error" : ""}
             />
 
@@ -610,17 +916,9 @@ function ShoppingList() {
                   clearFieldError("category");
                 }
               }}
-              placeholder="e.g. Dairy"
+              placeholder="e.g. Bakery"
               className={fieldErrors.category ? "input-error" : ""}
             />
-
-            {fieldErrors.category && (
-              <div className="inline-toast inline-toast-error">
-                <HugeiconsIcon icon={AlertCircleIcon} size={16} />
-
-                <span>{fieldErrors.category}</span>
-              </div>
-            )}
           </div>
 
           <div className="item-form-buttons">
