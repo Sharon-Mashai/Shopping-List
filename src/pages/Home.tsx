@@ -2,17 +2,50 @@ import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { HugeiconsIcon } from "@hugeicons/react";
-import { ListViewIcon,ShoppingBasket01Icon, ShoppingCart01Icon, Tick01Icon, Delete02Icon, AlertCircleIcon, Share01Icon, ClipboardListIcon,} from "@hugeicons/core-free-icons";
+import {
+  ListViewIcon,
+  ShoppingBasket01Icon,
+  ShoppingCart01Icon,
+  Tick01Icon,
+  Delete02Icon,
+  AlertCircleIcon,
+  Share01Icon,
+  ClipboardListIcon,
+} from "@hugeicons/core-free-icons";
+
 import type { AppDispatch, RootState } from "../store/store";
+
 import type { ShoppingItem, ShoppingList as ShoppingListType } from "../types";
-import { setShoppingLists, setLoading, setError, deleteShoppingList as deleteShoppingListState,updateShoppingList as updateShoppingListState,} from "../store/slices/ShoppingListSlice";
-import { getShoppingLists, getSharedShoppingLists, getShoppingItems, deleteShoppingList, updateSharedShoppingList,} from "../services/api";
+
+import {
+  setShoppingLists,
+  setLoading,
+  setError,
+  deleteShoppingList as deleteShoppingListState,
+  updateShoppingList as updateShoppingListState,
+} from "../store/slices/ShoppingListSlice";
+
+import {
+  getShoppingLists,
+  getSharedShoppingLists,
+  getShoppingItems,
+  deleteShoppingList,
+  updateSharedShoppingList,
+} from "../services/api";
+
 import useToast from "../hooks/useToast";
+
 import emptyShoppingListImage from "../assets/EmptyStateImage.png";
 
 type ListStats = {
   total: number;
   completed: number;
+};
+
+type DeleteTarget = {
+  id: string;
+  name: string;
+  isOwner: boolean;
 };
 
 function Home() {
@@ -30,10 +63,7 @@ function Home() {
 
   const [deletingListId, setDeletingListId] = useState<string | null>(null);
 
-  const [deleteTarget, setDeleteTarget] = useState<{
-    id: string;
-    name: string;
-  } | null>(null);
+  const [deleteTarget, setDeleteTarget] = useState<DeleteTarget | null>(null);
 
   const [listStats, setListStats] = useState<Record<string, ListStats>>({});
 
@@ -166,20 +196,18 @@ function Home() {
   };
 
   const handleSelectAll = () => {
-    const ownListIds = shoppingLists
-      .filter((list) => list.userId === user?.id)
-      .map((list) => list.id);
+    const allListIds = shoppingLists.map((list) => list.id);
 
-    if (ownListIds.length === 0) {
+    if (allListIds.length === 0) {
       return;
     }
 
-    const allSelected = ownListIds.every((id) => selectedLists.includes(id));
+    const allSelected = allListIds.every((id) => selectedLists.includes(id));
 
     if (allSelected) {
       setSelectedLists([]);
     } else {
-      setSelectedLists(ownListIds);
+      setSelectedLists(allListIds);
     }
   };
 
@@ -225,18 +253,18 @@ function Home() {
       return;
     }
 
-    const listsToShare = shoppingLists.filter(
-      (list) => selectedLists.includes(list.id) && list.userId === user.id,
-    );
-
-    if (listsToShare.length === 0) {
-      setShareError("You can only share shopping lists that you own.");
+    if (email === user.email.toLowerCase()) {
+      setShareError("You cannot share a shopping list with yourself.");
 
       return;
     }
 
-    if (email === user.email.toLowerCase()) {
-      setShareError("You cannot share a shopping list with yourself.");
+    const listsToShare = shoppingLists.filter((list) =>
+      selectedLists.includes(list.id),
+    );
+
+    if (listsToShare.length === 0) {
+      setShareError("No shopping lists were selected.");
 
       return;
     }
@@ -297,24 +325,41 @@ function Home() {
     }
   };
 
-  const handleDeleteList = (id: string, name: string) => {
+  const handleDeleteList = (list: ShoppingListType) => {
     setDeleteTarget({
-      id,
-      name,
+      id: list.id,
+      name: list.name,
+      isOwner: list.userId === user?.id,
     });
   };
 
   const confirmDeleteList = async () => {
-    if (!deleteTarget) {
+    if (!deleteTarget || !user) {
       return;
     }
 
-    const { id, name } = deleteTarget;
+    const { id, name, isOwner } = deleteTarget;
 
     try {
       setDeletingListId(id);
 
-      await deleteShoppingList(id);
+      dispatch(setError(null));
+
+      if (isOwner) {
+        await deleteShoppingList(id);
+      } else {
+        const list = shoppingLists.find((item) => item.id === id);
+
+        if (!list) {
+          throw new Error("Shared shopping list could not be found.");
+        }
+
+        const updatedSharedWith = (list.sharedWith || []).filter(
+          (email) => email.toLowerCase() !== user.email.toLowerCase(),
+        );
+
+        await updateSharedShoppingList(id, updatedSharedWith);
+      }
 
       dispatch(deleteShoppingListState(id));
 
@@ -332,11 +377,17 @@ function Home() {
 
       setDeleteTarget(null);
 
-      showToast(`"${name}" deleted successfully.`, "success");
+      if (isOwner) {
+        showToast(`"${name}" deleted successfully.`, "success");
+      } else {
+        showToast(`"${name}" removed from your shopping lists.`, "success");
+      }
     } catch (error) {
       console.error(error);
 
-      const message = "Unable to delete shopping list.";
+      const message = deleteTarget.isOwner
+        ? "Unable to delete shopping list."
+        : "Unable to remove shared shopping list.";
 
       dispatch(setError(message));
 
@@ -357,25 +408,15 @@ function Home() {
   };
 
   const confirmDeleteSelectedLists = async () => {
-    if (selectedLists.length === 0) {
+    if (selectedLists.length === 0 || !user) {
       return;
     }
 
-    if (!user) {
-      showToast("You must be logged in to delete shopping lists.", "error");
-
-      return;
-    }
-
-    const listsToDelete = shoppingLists.filter(
-      (list) => selectedLists.includes(list.id) && list.userId === user.id,
+    const listsToDelete = shoppingLists.filter((list) =>
+      selectedLists.includes(list.id),
     );
 
     if (listsToDelete.length === 0) {
-      showToast("There are no selected shopping lists to delete.", "warning");
-
-      setShowBulkDeleteModal(false);
-
       return;
     }
 
@@ -384,35 +425,49 @@ function Home() {
 
       dispatch(setError(null));
 
+      const removedIds: string[] = [];
+
       let deletedCount = 0;
+
+      let removedSharedCount = 0;
 
       let failedCount = 0;
 
-      const deletedIds: string[] = [];
-
       for (const list of listsToDelete) {
         try {
-          await deleteShoppingList(list.id);
+          const isOwner = list.userId === user.id;
+
+          if (isOwner) {
+            await deleteShoppingList(list.id);
+
+            deletedCount++;
+          } else {
+            const updatedSharedWith = (list.sharedWith || []).filter(
+              (email) => email.toLowerCase() !== user.email.toLowerCase(),
+            );
+
+            await updateSharedShoppingList(list.id, updatedSharedWith);
+
+            removedSharedCount++;
+          }
 
           dispatch(deleteShoppingListState(list.id));
 
-          deletedIds.push(list.id);
-
-          deletedCount++;
+          removedIds.push(list.id);
         } catch (error) {
-          console.error(`Unable to delete "${list.name}":`, error);
+          console.error(`Unable to remove "${list.name}":`, error);
 
           failedCount++;
         }
       }
 
-      if (deletedIds.length > 0) {
+      if (removedIds.length > 0) {
         setListStats((currentStats) => {
           const updatedStats = {
             ...currentStats,
           };
 
-          deletedIds.forEach((id) => {
+          removedIds.forEach((id) => {
             delete updatedStats[id];
           });
 
@@ -420,28 +475,32 @@ function Home() {
         });
 
         setSelectedLists((current) =>
-          current.filter((id) => !deletedIds.includes(id)),
+          current.filter((id) => !removedIds.includes(id)),
         );
       }
 
       setShowBulkDeleteModal(false);
 
       if (failedCount === 0) {
+        const totalRemoved = deletedCount + removedSharedCount;
+
         showToast(
-          `${deletedCount} ${
-            deletedCount === 1 ? "shopping list" : "shopping lists"
-          } deleted successfully.`,
+          `${totalRemoved} ${
+            totalRemoved === 1 ? "shopping list" : "shopping lists"
+          } removed successfully.`,
           "success",
         );
-      } else if (deletedCount > 0) {
+      } else if (removedIds.length > 0) {
         showToast(
-          `${deletedCount} ${
-            deletedCount === 1 ? "shopping list was" : "shopping lists were"
-          } deleted, but ${failedCount} could not be deleted.`,
+          `${removedIds.length} ${
+            removedIds.length === 1
+              ? "shopping list was"
+              : "shopping lists were"
+          } removed, but ${failedCount} could not be removed.`,
           "warning",
         );
       } else {
-        showToast("Unable to delete the selected shopping lists.", "error");
+        showToast("Unable to remove the selected shopping lists.", "error");
       }
     } finally {
       setBulkDeleting(false);
@@ -493,11 +552,9 @@ function Home() {
     return `Created ${days} days ago`;
   };
 
-  const ownedLists = shoppingLists.filter((list) => list.userId === user?.id);
-
-  const allOwnedSelected =
-    ownedLists.length > 0 &&
-    ownedLists.every((list) => selectedLists.includes(list.id));
+  const allListsSelected =
+    shoppingLists.length > 0 &&
+    shoppingLists.every((list) => selectedLists.includes(list.id));
 
   return (
     <main className="home-page">
@@ -628,11 +685,11 @@ function Home() {
             <label className="shopping-list-select-all">
               <input
                 type="checkbox"
-                checked={allOwnedSelected}
+                checked={allListsSelected}
                 onChange={handleSelectAll}
               />
 
-              <span>Select all my lists</span>
+              <span>Select all lists</span>
             </label>
 
             {selectedLists.length > 0 && (
@@ -684,7 +741,6 @@ function Home() {
                       <input
                         type="checkbox"
                         checked={isSelected}
-                        disabled={!isOwner}
                         onChange={() => handleSelectList(list.id)}
                         aria-label={`Select ${list.name}`}
                       />
@@ -762,28 +818,24 @@ function Home() {
                     </Link>
 
                     {isOwner && (
-                      <>
-                        <Link
-                          to={`/edit-shopping-list/${list.id}`}
-                          className="button button-secondary"
-                        >
-                          <span>Edit</span>
-                        </Link>
-
-                        <button
-                          type="button"
-                          className="button button-danger"
-                          onClick={() => handleDeleteList(list.id, list.name)}
-                          disabled={deletingListId === list.id}
-                        >
-                          <span>
-                            {deletingListId === list.id
-                              ? "Deleting..."
-                              : "Delete"}
-                          </span>
-                        </button>
-                      </>
+                      <Link
+                        to={`/edit-shopping-list/${list.id}`}
+                        className="button button-secondary"
+                      >
+                        <span>Edit</span>
+                      </Link>
                     )}
+
+                    <button
+                      type="button"
+                      className="button button-danger"
+                      onClick={() => handleDeleteList(list)}
+                      disabled={deletingListId === list.id}
+                    >
+                      <span>
+                        {deletingListId === list.id ? "Deleting..." : "Delete"}
+                      </span>
+                    </button>
                   </div>
                 </article>
               );
@@ -817,14 +869,24 @@ function Home() {
             </div>
 
             <div className="delete-modal-content">
-              <h2 id="delete-modal-title">Delete Shopping List?</h2>
+              <h2 id="delete-modal-title">
+                {deleteTarget.isOwner
+                  ? "Delete Shopping List?"
+                  : "Remove Shared List?"}
+              </h2>
 
               <p>
-                Are you sure you want to delete{" "}
+                {deleteTarget.isOwner
+                  ? "Are you sure you want to delete "
+                  : "Are you sure you want to remove "}
                 <strong>"{deleteTarget.name}"</strong>?
               </p>
 
-              <span>This action cannot be undone.</span>
+              <span>
+                {deleteTarget.isOwner
+                  ? "This action cannot be undone."
+                  : "The original shopping list will remain available to its owner."}
+              </span>
             </div>
 
             <div className="delete-modal-actions">
@@ -845,7 +907,13 @@ function Home() {
               >
                 <HugeiconsIcon icon={Delete02Icon} size={18} />
 
-                <span>{deletingListId ? "Deleting..." : "Delete List"}</span>
+                <span>
+                  {deletingListId
+                    ? "Deleting..."
+                    : deleteTarget.isOwner
+                      ? "Delete List"
+                      : "Remove List"}
+                </span>
               </button>
             </div>
           </section>
@@ -876,7 +944,7 @@ function Home() {
               <h2 id="bulk-delete-modal-title">Delete Selected Lists?</h2>
 
               <p>
-                Are you sure you want to delete{" "}
+                Are you sure you want to remove{" "}
                 <strong>
                   {selectedLists.length}{" "}
                   {selectedLists.length === 1
@@ -886,7 +954,10 @@ function Home() {
                 ?
               </p>
 
-              <span>This action cannot be undone.</span>
+              <span>
+                Lists you own will be deleted. Shared lists will only be removed
+                from your account.
+              </span>
             </div>
 
             <div className="delete-modal-actions">
