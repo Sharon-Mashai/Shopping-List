@@ -1,58 +1,56 @@
-import { useState } from "react";
+import {
+  useState,
+} from "react";
+
 import bcrypt from "bcryptjs";
+
 import {
   Link,
   useNavigate,
 } from "react-router-dom";
-import {
-  useDispatch,
-} from "react-redux";
-
-import type {
-  AppDispatch,
-} from "../store/store";
-
-import {
-  login,
-} from "../store/slices/authSlice";
-
-import useToast from "../hooks/useToast";
 
 import {
   getUserByEmail,
+  updateUser,
 } from "../services/api";
 
-type LoginErrors = {
+import useToast from "../hooks/useToast";
+
+type ForgotPasswordErrors = {
   email?: string;
-  password?: string;
+  newPassword?: string;
+  confirmPassword?: string;
 };
 
-function Login() {
+function ForgotPassword() {
   const [
     email,
     setEmail,
   ] = useState("");
 
   const [
-    password,
-    setPassword,
+    newPassword,
+    setNewPassword,
+  ] = useState("");
+
+  const [
+    confirmPassword,
+    setConfirmPassword,
   ] = useState("");
 
   const [
     fieldErrors,
     setFieldErrors,
   ] =
-    useState<LoginErrors>(
+    useState<ForgotPasswordErrors>(
       {},
     );
 
   const [
-    loggingIn,
-    setLoggingIn,
-  ] = useState(false);
-
-  const dispatch =
-    useDispatch<AppDispatch>();
+    updating,
+    setUpdating,
+  ] =
+    useState(false);
 
   const navigate =
     useNavigate();
@@ -62,7 +60,8 @@ function Login() {
   } = useToast();
 
   const clearFieldError = (
-    field: keyof LoginErrors,
+    field:
+      keyof ForgotPasswordErrors,
   ) => {
     setFieldErrors(
       (current) => ({
@@ -72,14 +71,15 @@ function Login() {
     );
   };
 
-  const handleLogin =
+  const handleResetPassword =
     async (
       event: React.FormEvent,
     ) => {
       event.preventDefault();
 
       const errors:
-        LoginErrors = {};
+        ForgotPasswordErrors =
+        {};
 
       const normalizedEmail =
         email
@@ -91,9 +91,25 @@ function Login() {
           "Email is required.";
       }
 
-      if (!password) {
-        errors.password =
-          "Password is required.";
+      if (!newPassword) {
+        errors.newPassword =
+          "New password is required.";
+      } else if (
+        newPassword.length < 6
+      ) {
+        errors.newPassword =
+          "Password must contain at least 6 characters.";
+      }
+
+      if (!confirmPassword) {
+        errors.confirmPassword =
+          "Please confirm your new password.";
+      } else if (
+        newPassword !==
+        confirmPassword
+      ) {
+        errors.confirmPassword =
+          "Passwords do not match.";
       }
 
       if (
@@ -109,7 +125,7 @@ function Login() {
       }
 
       try {
-        setLoggingIn(true);
+        setUpdating(true);
 
         setFieldErrors({});
 
@@ -123,9 +139,7 @@ function Login() {
         ) {
           setFieldErrors({
             email:
-              "The email or password you entered is incorrect.",
-            password:
-              "The email or password you entered is incorrect.",
+              "No account was found with this email address.",
           });
 
           return;
@@ -134,45 +148,27 @@ function Login() {
         const user =
           users[0];
 
-        const passwordMatches =
-          await bcrypt.compare(
-            password,
-            user.password,
+        const hashedPassword =
+          await bcrypt.hash(
+            newPassword,
+            10,
           );
 
-        if (
-          !passwordMatches
-        ) {
-          setFieldErrors({
-            email:
-              "The email or password you entered is incorrect.",
+        await updateUser(
+          user.id,
+          {
             password:
-              "The email or password you entered is incorrect.",
-          });
-
-          return;
-        }
-
-        dispatch(
-          login({
-            id: user.id,
-            name: user.name,
-            surname:
-              user.surname,
-            email:
-              user.email,
-            cellNumber:
-              user.cellNumber,
-          }),
+              hashedPassword,
+          },
         );
 
         showToast(
-          `Welcome, ${user.name}!`,
+          "Password updated successfully. You can now sign in.",
           "success",
         );
 
         navigate(
-          "/home",
+          "/login",
         );
       } catch (error) {
         console.error(
@@ -180,11 +176,11 @@ function Login() {
         );
 
         showToast(
-          "Something went wrong. Please try again.",
+          "Unable to update your password. Please try again.",
           "error",
         );
       } finally {
-        setLoggingIn(
+        setUpdating(
           false,
         );
       }
@@ -198,12 +194,12 @@ function Login() {
         <div className="auth-header">
 
           <h1>
-            Welcome
+            Reset Password
           </h1>
 
           <p>
-            Sign in to manage your
-            shopping lists.
+            Enter your email and
+            create a new password.
           </p>
 
         </div>
@@ -211,20 +207,20 @@ function Login() {
 
         <form
           onSubmit={
-            handleLogin
+            handleResetPassword
           }
           autoComplete="off"
         >
 
           <div className="form-group">
 
-            <label htmlFor="email">
+            <label htmlFor="resetEmail">
               Email
             </label>
 
             <input
-              id="email"
-              name="login-email"
+              id="resetEmail"
+              name="reset-email"
               type="email"
               value={email}
               onChange={(
@@ -247,7 +243,7 @@ function Login() {
                   : ""
               }
               disabled={
-                loggingIn
+                updating
               }
             />
 
@@ -264,43 +260,49 @@ function Login() {
 
           <div className="form-group">
 
-            <label htmlFor="password">
-              Password
+            <label htmlFor="newPassword">
+              New Password
             </label>
 
             <input
-              id="password"
-              name="login-password"
+              id="newPassword"
+              name="new-password"
               type="password"
-              value={password}
+              value={
+                newPassword
+              }
               onChange={(
                 event,
               ) => {
-                setPassword(
+                setNewPassword(
                   event.target
                     .value,
                 );
 
                 clearFieldError(
-                  "password",
+                  "newPassword",
+                );
+
+                clearFieldError(
+                  "confirmPassword",
                 );
               }}
-              placeholder="Enter your password"
+              placeholder="Enter your new password"
               autoComplete="new-password"
               className={
-                fieldErrors.password
+                fieldErrors.newPassword
                   ? "input-error"
                   : ""
               }
               disabled={
-                loggingIn
+                updating
               }
             />
 
-            {fieldErrors.password && (
+            {fieldErrors.newPassword && (
               <p className="field-error">
                 {
-                  fieldErrors.password
+                  fieldErrors.newPassword
                 }
               </p>
             )}
@@ -308,14 +310,50 @@ function Login() {
           </div>
 
 
-          <div className="forgot-password-row">
+          <div className="form-group">
 
-            <Link
-              to="/forgot-password"
-              className="forgot-password-link"
-            >
-              Forgot password?
-            </Link>
+            <label htmlFor="confirmPassword">
+              Confirm Password
+            </label>
+
+            <input
+              id="confirmPassword"
+              name="confirm-password"
+              type="password"
+              value={
+                confirmPassword
+              }
+              onChange={(
+                event,
+              ) => {
+                setConfirmPassword(
+                  event.target
+                    .value,
+                );
+
+                clearFieldError(
+                  "confirmPassword",
+                );
+              }}
+              placeholder="Confirm your new password"
+              autoComplete="new-password"
+              className={
+                fieldErrors.confirmPassword
+                  ? "input-error"
+                  : ""
+              }
+              disabled={
+                updating
+              }
+            />
+
+            {fieldErrors.confirmPassword && (
+              <p className="field-error">
+                {
+                  fieldErrors.confirmPassword
+                }
+              </p>
+            )}
 
           </div>
 
@@ -324,23 +362,25 @@ function Login() {
             type="submit"
             className="button button-primary auth-submit-button"
             disabled={
-              loggingIn
+              updating
             }
           >
-            {loggingIn
-              ? "Signing In..."
-              : "Sign In"}
+            {updating
+              ? "Updating..."
+              : "Update Password"}
           </button>
 
         </form>
 
 
         <p className="auth-footer">
-          Don't have an account?{" "}
 
-          <Link to="/register">
-            Create an account
+          Remember your password?{" "}
+
+          <Link to="/login">
+            Back to Sign In
           </Link>
+
         </p>
 
       </section>
@@ -349,4 +389,4 @@ function Login() {
   );
 }
 
-export default Login;
+export default ForgotPassword;

@@ -2549,3 +2549,27 @@ ul {
     grid-template-columns: 1fr;
   }
 }
+.auth-submit-button {
+  width: 100%;
+}
+
+.forgot-password-row {
+  display: flex;
+  justify-content: flex-end;
+
+  margin-top: -8px;
+  margin-bottom: 20px;
+}
+
+.forgot-password-link {
+  color: var(--color-charcoal);
+
+  font-size: 13px;
+  font-weight: 600;
+
+  transition: var(--transition);
+}
+
+.forgot-password-link:hover {
+  text-decoration: underline;
+}

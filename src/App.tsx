@@ -11,6 +11,7 @@ import EditShoppingList from "./pages/EditShoppingList";
 import DashboardLayout from "./components/DashboardLayout";
 import ToastProvider from "./components/ToastProvider";
 import UpdateCredentials from "./pages/UpdateCredentials";
+import ForgotPassword from "./pages/ForgotPassword";
 
 function App() {
   return (
@@ -21,6 +22,9 @@ function App() {
             <Route path="/login" element={<Login />} />
 
             <Route path="/register" element={<Register />} />
+            <Route path="/forgot-password"element={<ForgotPassword />
+  }
+/>
           </Route>
 
           <Route element={<ProtectedRoute />}>
